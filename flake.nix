@@ -35,6 +35,12 @@
               extra-cmake-modules
               cmakeCurses
               clang-tools
+
+              SDL2
+              SDL2_image
+              SDL2_gfx
+
+              sccache
             ];
 
             buildInputs = with pkgs; [
@@ -49,7 +55,7 @@
 
               glew
               glm
-            ];
+            ] ++ libPath;
           };
       };
     });
