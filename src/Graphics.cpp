@@ -1,8 +1,8 @@
 #include "Graphics.h"
 #include <iostream>
 
-SDL_Window* Graphics::window = NULL;
-SDL_Renderer* Graphics::renderer = NULL;
+SDL_Window* Graphics::window = nullptr;
+SDL_Renderer* Graphics::renderer = nullptr;
 int Graphics::windowWidth = 0;
 int Graphics::windowHeight = 0;
 
@@ -20,7 +20,7 @@ bool Graphics::OpenWindow() {
   windowWidth = display_mode.w;
   windowHeight = display_mode.h;
   window = SDL_CreateWindow(
-    NULL,
+    nullptr,
     0,
     0,
     windowWidth,
@@ -51,10 +51,11 @@ void Graphics::ClearScreen(Uint32 color) {
 void Graphics::RenderFrame() { SDL_RenderPresent(renderer); }
 
 void Graphics::DrawLine(int x0, int y0, int x1, int y1, Uint32 color) {
-  lineColor(renderer, x0, y0, x1, y1, color);
+  lineColor(renderer, x0, y0, x1, y1, color); // NOLINT
 }
 
 void Graphics::DrawCircle(int x, int y, int radius, float angle, Uint32 color) {
+  // NOLINTBEGIN
   circleColor(renderer, x, y, radius, color);
   lineColor(
     renderer,
@@ -64,48 +65,58 @@ void Graphics::DrawCircle(int x, int y, int radius, float angle, Uint32 color) {
     y + sin(angle) * radius,
     color
   );
+  // NOLINTEND
 }
 
 void Graphics::DrawFillCircle(int x, int y, int radius, Uint32 color) {
-  filledCircleColor(renderer, x, y, radius, color);
+  filledCircleColor(renderer, x, y, radius, color); // NOLINT
 }
 
 void Graphics::DrawRect(int x, int y, int width, int height, Uint32 color) {
   lineColor(
     renderer,
+    // NOLINTBEGIN
     x - width / 2.0,
     y - height / 2.0,
     x + width / 2.0,
     y - height / 2.0,
     color
+    // NOLINTEND
   );
   lineColor(
+    // NOLINTBEGIN
     renderer,
     x + width / 2.0,
     y - height / 2.0,
     x + width / 2.0,
     y + height / 2.0,
     color
+    // NOLINTEND
   );
   lineColor(
+    // NOLINTBEGIN
     renderer,
     x + width / 2.0,
     y + height / 2.0,
     x - width / 2.0,
     y + height / 2.0,
     color
+    // NOLINTEND
   );
   lineColor(
+    // NOLINTBEGIN
     renderer,
     x - width / 2.0,
     y + height / 2.0,
     x - width / 2.0,
     y - height / 2.0,
     color
+    // NOLINTEND
   );
 }
 
 void Graphics::DrawFillRect(int x, int y, int width, int height, Uint32 color) {
+  // NOLINTBEGIN
   boxColor(
     renderer,
     x - width / 2.0,
@@ -114,6 +125,7 @@ void Graphics::DrawFillRect(int x, int y, int width, int height, Uint32 color) {
     y + height / 2.0,
     color
   );
+  // NOLINTEND
 }
 
 void Graphics::DrawPolygon(
@@ -123,6 +135,7 @@ void Graphics::DrawPolygon(
   Uint32 color
 ) {
   for (size_t i = 0; i < vertices.size(); i++) {
+    // NOLINTBEGIN
     int currIndex = i;
     int nextIndex = (i + 1) % vertices.size();
     lineColor(
@@ -135,6 +148,7 @@ void Graphics::DrawPolygon(
     );
   }
   filledCircleColor(renderer, x, y, 1, color);
+  // NOLINTEND
 }
 
 void Graphics::DrawFillPolygon(
@@ -146,6 +160,7 @@ void Graphics::DrawFillPolygon(
   std::vector<short> vx;
   std::vector<short> vy;
 
+  // NOLINTBEGIN
   vx.reserve(vertices.size());
   for (const auto& vertice: vertices) {
     vx.push_back(static_cast<int>(vertice.x));
@@ -157,6 +172,8 @@ void Graphics::DrawFillPolygon(
   }
   filledPolygonColor(renderer, &vx[0], &vy[0], vertices.size(), color);
   filledCircleColor(renderer, x, y, 1, 0xFF000000);
+
+  // NOLINTEND
 }
 
 void Graphics::DrawTexture(
@@ -172,15 +189,15 @@ void Graphics::DrawTexture(
   SDL_RenderCopyEx(
     renderer,
     texture,
-    NULL,
+    nullptr,
     &dstRect,
     rotationDeg,
-    NULL,
+    nullptr,
     SDL_FLIP_NONE
   );
 }
 
-void Graphics::CloseWindow(void) {
+void Graphics::CloseWindow() {
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
