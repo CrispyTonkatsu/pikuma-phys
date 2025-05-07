@@ -17,9 +17,7 @@
     {
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell.override
-          {
-            stdenv = pkgs.clang18Stdenv;
-          }
+          { }
           {
             shellHook = /* bash */ ''
               export LD_LIBRARY_PATH=${pkgs.libxkbcommon}/lib:$LD_LIBRARY_PATH
