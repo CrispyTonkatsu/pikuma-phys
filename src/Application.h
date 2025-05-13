@@ -2,25 +2,30 @@
 #define APPLICATION_H
 
 #include "./Graphics.h"
+#include "Physics/Particle.h"
 
 class Application {
-    private:
-        bool running = false;
+private:
 
-    public:
-        Application() = default;
-        Application(const Application&) = delete;
-        Application(Application&&) = delete;
-        Application& operator=(const Application&) = delete;
-        Application& operator=(Application&&) = delete;
-        ~Application() = default;
+  Particle* particle;
 
-        bool IsRunning();
-        void Setup();
-        void Input();
-        void Update();
-        void Render();
-        void Destroy();
+  bool running = false;
+
+public:
+
+  Application() = default;
+  Application(const Application&) = delete;
+  Application(Application&&) = delete;
+  Application& operator=(const Application&) = delete;
+  Application& operator=(Application&&) = delete;
+  ~Application() = default;
+
+  bool IsRunning();
+  void Setup();
+  void Input();
+  void Update();
+  void Render();
+  void Destroy();
 };
 
 #endif

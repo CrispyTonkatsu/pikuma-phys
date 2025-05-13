@@ -1,3 +1,3 @@
 #include "Particle.h"
 
-// TODO:
+Particle::Particle(Vec2 position, float mass): position(position), mass(mass) {}
