@@ -15,7 +15,7 @@ void Application::Setup() {
 
   particles.emplace_back(
     std::make_unique<Particle>(
-      Vec2(Graphics::Width() * 0.4f, Graphics::Height() * 0.1f),
+      Vec2(Graphics::Width<float>() * 0.4f, Graphics::Height<float>() * 0.1f),
       1.f,
       4.f
     )
@@ -23,7 +23,7 @@ void Application::Setup() {
 
   particles.emplace_back(
     std::make_unique<Particle>(
-      Vec2(Graphics::Width() * 0.6f, Graphics::Height() * 0.1f),
+      Vec2(Graphics::Width<float>() * 0.6f, Graphics::Height<float>() * 0.1f),
       3.f,
       12.f
     )
@@ -134,4 +134,4 @@ void Application::Render() {
 ///////////////////////////////////////////////////////////////////////////////
 // Destroy function to delete objects and close the window
 ///////////////////////////////////////////////////////////////////////////////
-void Application::Destroy() { Graphics::CloseWindow(); }
+void Application::Destroy() { Graphics::CloseWindow(); } // NOLINT
