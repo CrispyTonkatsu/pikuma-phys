@@ -9,6 +9,8 @@ private:
 
   Particle* particle;
 
+  int time_prev_frame{0};
+
   bool running = false;
 
 public:

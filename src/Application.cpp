@@ -1,5 +1,7 @@
 #include "Application.h"
+#include "Physics/Constants.h"
 #include "Physics/Particle.h"
+#include "SDL_timer.h"
 
 bool Application::IsRunning() { return running; }
 
@@ -35,9 +37,22 @@ void Application::Input() {
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Update() {
 
-  // TODO:Check if we are too fast, if so, wait until the desired time per frame is reached
+  // Check if we are too fast, if so, wait until the desired time per frame
+  // is reached
+  int time_to_wait =
+    MILISECONDS_PER_FRAME - static_cast<int>(SDL_GetTicks() - time_prev_frame);
 
-  particle->velocity = Vec2(2.f, 0.f);
+  if (time_to_wait > 0) {
+    SDL_Delay(time_to_wait);
+  }
+
+  float delta_time =
+    static_cast<float>(SDL_GetTicks() - time_prev_frame) / 1000;
+
+  time_prev_frame = static_cast<int>(SDL_GetTicks());
+
+  // Updating the position of the particle
+  particle->velocity = Vec2(200.f, 100.f) * delta_time;
   particle->position += particle->velocity;
 }
 
