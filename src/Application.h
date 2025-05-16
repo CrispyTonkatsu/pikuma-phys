@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <vector>
-#include "./Graphics.h"
 #include "Physics/Particle.h"
 
 class Application {
@@ -24,7 +23,7 @@ public:
   Application& operator=(Application&&) = delete;
   ~Application() = default;
 
-  bool IsRunning();
+  bool IsRunning() const;
   void Setup();
   void Input();
   void Update();

@@ -1,13 +1,11 @@
 #include "Application.h"
 #include <algorithm>
-#include <execution>
-#include <memory>
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Particle.h"
 #include "SDL_timer.h"
 
-bool Application::IsRunning() { return running; }
+bool Application::IsRunning() const { return running; }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Setup function (executed once in the beginning of the simulation)
@@ -16,13 +14,19 @@ void Application::Setup() {
   running = Graphics::OpenWindow();
 
   particles.emplace_back(
-    std::make_unique<Particle>(//
-      Vec2(50.f, 50.f), 1.f, 4.f)
+    std::make_unique<Particle>(
+      Vec2(Graphics::Width() * 0.4f, Graphics::Height() * 0.1f),
+      1.f,
+      4.f
+    )
   );
 
   particles.emplace_back(
-    std::make_unique<Particle>(//
-      Vec2(50.f, 50.f), 3.f, 12.f)
+    std::make_unique<Particle>(
+      Vec2(Graphics::Width() * 0.6f, Graphics::Height() * 0.1f),
+      3.f,
+      12.f
+    )
   );
 }
 
@@ -37,6 +41,21 @@ void Application::Input() {
       case SDL_KEYDOWN:
         if (event.key.keysym.sym == SDLK_ESCAPE) {
           running = false;
+        }
+
+        auto& particle = *particles.front();
+
+        if (event.key.keysym.sym == SDLK_UP) {
+          particle.AddForce({0.f, -50.f});
+        }
+        if (event.key.keysym.sym == SDLK_DOWN) {
+          particle.AddForce({0.f, 50.f});
+        }
+        if (event.key.keysym.sym == SDLK_LEFT) {
+          particle.AddForce({-50.f, 0.f});
+        }
+        if (event.key.keysym.sym == SDLK_RIGHT) {
+          particle.AddForce({50.f, 0.f});
         }
         break;
     }
@@ -66,7 +85,6 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   for (std::unique_ptr<Particle>& particle: particles) {
-    particle->AddForce(Vec2(10.f, 0.f));
     particle->Integrate(delta_time);
 
     // Keep the particle in the screen (The entire circle)
@@ -103,9 +121,9 @@ void Application::Render() {
 
   for (std::unique_ptr<Particle>& particle: particles) {
     Graphics::DrawFillCircle(
-      particle->position.x,
-      particle->position.y,
-      particle->radius,
+      static_cast<int>(particle->position.x),
+      static_cast<int>(particle->position.y),
+      static_cast<int>(particle->radius),
       0xFFFFFFFF
     );
   }
