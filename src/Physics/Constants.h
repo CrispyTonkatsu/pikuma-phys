@@ -7,4 +7,10 @@
 const int FPS = 60;
 const int MILISECONDS_PER_FRAME = 1000 / FPS;
 
+// The maximum allowed delta time
+const float MAX_DELTA_TIME = 0.016;
+
+// Standardizing units
+const int PIXELS_PER_METER = 50.f;
+
 #endif

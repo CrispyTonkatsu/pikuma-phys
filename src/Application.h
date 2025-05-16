@@ -7,7 +7,7 @@
 class Application {
 private:
 
-  Particle* particle;
+  Particle* particle{nullptr};
 
   int time_prev_frame{0};
 
