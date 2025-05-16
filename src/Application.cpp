@@ -66,7 +66,7 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   for (std::unique_ptr<Particle>& particle: particles) {
-    particle->AddForce(Vec2(0.f, 0.f));
+    particle->AddForce(Vec2(10.f, 0.f));
     particle->Integrate(delta_time);
 
     // Keep the particle in the screen (The entire circle)

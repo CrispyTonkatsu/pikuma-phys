@@ -12,6 +12,7 @@ public:
   Vec2 net_force{};
 
   float mass{1.f};
+  float inv_mass{1.f};
   float radius{1.f};
 
   Particle(Vec2 position, float mass, float radius);
