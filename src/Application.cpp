@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <algorithm>
 #include <execution>
+#include <memory>
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Particle.h"
@@ -14,8 +15,15 @@ bool Application::IsRunning() { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  // TODO: setup objects in the scene
-  particle = new Particle(Vec2(50.f, 50.f), 10.f, 10.f);
+  particles.emplace_back(
+    std::make_unique<Particle>(//
+      Vec2(50.f, 50.f), 1.f, 4.f)
+  );
+
+  particles.emplace_back(
+    std::make_unique<Particle>(//
+      Vec2(50.f, 50.f), 3.f, 12.f)
+  );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,30 +65,33 @@ void Application::Update() {
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
-  particle->Integrate(delta_time);
+  for (std::unique_ptr<Particle>& particle: particles) {
+    particle->AddForce(Vec2(0.f, 0.f));
+    particle->Integrate(delta_time);
 
-  // Keep the particle in the screen (The entire circle)
-  const Vec2 screen_start = Vec2(particle->radius, particle->radius);
+    // Keep the particle in the screen (The entire circle)
+    const Vec2 screen_start = Vec2(particle->radius, particle->radius);
 
-  const Vec2 screen_end = Vec2(
-    static_cast<float>(Graphics::Width()) - particle->radius,
-    static_cast<float>(Graphics::Height()) - particle->radius
-  );
+    const Vec2 screen_end = Vec2(
+      static_cast<float>(Graphics::Width()) - particle->radius,
+      static_cast<float>(Graphics::Height()) - particle->radius
+    );
 
-  if (particle->position.x > screen_end.x
-      || particle->position.x < screen_start.x) {
-    particle->position.x =
-      std::clamp(particle->position.x, screen_start.x, screen_end.x);
+    if (particle->position.x > screen_end.x
+        || particle->position.x < screen_start.x) {
+      particle->position.x =
+        std::clamp(particle->position.x, screen_start.x, screen_end.x);
 
-    particle->velocity.x *= -1.f;
-  }
+      particle->velocity.x *= -1.f;
+    }
 
-  if (particle->position.y > screen_end.y
-      || particle->position.y < screen_start.y) {
-    particle->position.y =
-      std::clamp(particle->position.y, screen_start.y, screen_end.y);
+    if (particle->position.y > screen_end.y
+        || particle->position.y < screen_start.y) {
+      particle->position.y =
+        std::clamp(particle->position.y, screen_start.y, screen_end.y);
 
-    particle->velocity.y *= -1.f;
+      particle->velocity.y *= -1.f;
+    }
   }
 }
 
@@ -89,22 +100,20 @@ void Application::Update() {
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Render() {
   Graphics::ClearScreen(0xFF056263);
-  Graphics::DrawFillCircle(
-    particle->position.x,
-    particle->position.y,
-    particle->radius,
-    0xFFFFFFFF
-  );
+
+  for (std::unique_ptr<Particle>& particle: particles) {
+    Graphics::DrawFillCircle(
+      particle->position.x,
+      particle->position.y,
+      particle->radius,
+      0xFFFFFFFF
+    );
+  }
+
   Graphics::RenderFrame();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // Destroy function to delete objects and close the window
 ///////////////////////////////////////////////////////////////////////////////
-void Application::Destroy() {
-  // TODO: destroy all objects in the scene
-
-  delete particle;
-
-  Graphics::CloseWindow();
-}
+void Application::Destroy() { Graphics::CloseWindow(); }

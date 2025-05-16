@@ -1,13 +1,15 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <memory>
+#include <vector>
 #include "./Graphics.h"
 #include "Physics/Particle.h"
 
 class Application {
 private:
 
-  Particle* particle{nullptr};
+  std::vector<std::unique_ptr<Particle>> particles{};
 
   int time_prev_frame{0};
 
