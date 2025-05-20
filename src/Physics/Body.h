@@ -11,6 +11,10 @@ public:
   Vec2 acceleration{};
   Vec2 net_force{};
 
+  // TODO: Angular Properties
+
+  // TODO: std::unique_ptr<Shape> shape{nullptr};
+
   float mass{1.f};
   float inv_mass{1.f};
   float radius{1.f};
