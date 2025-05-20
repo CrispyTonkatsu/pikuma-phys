@@ -4,18 +4,18 @@
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
-#include "Physics/Particle.h"
+#include "Physics/Body.h"
 #include "SDL_events.h"
 #include "SDL_mouse.h"
 #include "SDL_stdinc.h"
 #include "SDL_timer.h"
 
-bool IsInRect(Particle& particle, SDL_Rect& rect) {
+bool IsInRect(Body& body, SDL_Rect& rect) {
   // NOLINTBEGIN
-  return (particle.position.x >= rect.x
-          && particle.position.x <= (rect.x + rect.w))
-      && (particle.position.y >= rect.y
-          && particle.position.y <= (rect.y + rect.h));
+  return (body.position.x >= rect.x
+          && body.position.x <= (rect.x + rect.w))
+      && (body.position.y >= rect.y
+          && body.position.y <= (rect.y + rect.h));
   // NOLINTEND
 }
 
@@ -41,8 +41,8 @@ void Application::Setup() {
 
   for (size_t i = 0; i < 2; i++) {
     for (size_t j = 0; j < 2; j++) {
-      particles.emplace_back(
-        std::make_unique<Particle>(
+      bodies.emplace_back(
+        std::make_unique<Body>(
           Vec2(
             Graphics::Width<float>() * 0.4f + i * spacing,
             Graphics::Height<float>() * 0.1f + j * spacing
@@ -79,21 +79,21 @@ void Application::Input() {
             running = false;
           }
 
-          auto& particle = *particles.front();
+          auto& body = *bodies.front();
 
           const float strength = 10000.f;
 
           if (event.key.keysym.sym == SDLK_UP) {
-            particle.AddForce({0.f, -strength});
+            body.AddForce({0.f, -strength});
           }
           if (event.key.keysym.sym == SDLK_DOWN) {
-            particle.AddForce({0.f, strength});
+            body.AddForce({0.f, strength});
           }
           if (event.key.keysym.sym == SDLK_LEFT) {
-            particle.AddForce({-strength, 0.f});
+            body.AddForce({-strength, 0.f});
           }
           if (event.key.keysym.sym == SDLK_RIGHT) {
-            particle.AddForce({strength, 0.f});
+            body.AddForce({strength, 0.f});
           }
         }
         break;
@@ -101,8 +101,8 @@ void Application::Input() {
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
-          particles.emplace_back(
-            std::make_unique<Particle>(
+          bodies.emplace_back(
+            std::make_unique<Body>(
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f,
               4.f
@@ -137,52 +137,52 @@ void Application::Update() {
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
-  for (auto& particle: particles) {
-    particle->AddForce(force::GenerateWeight(*particle));
-    particle->AddForce(force::GenerateDragSimple(*particle, 0.01));
+  for (auto& body: bodies) {
+    body->AddForce(force::GenerateWeight(*body));
+    body->AddForce(force::GenerateDragSimple(*body, 0.01));
 
-    for (auto& anchor_particle: particles) {
-      if (particle == anchor_particle) {
+    for (auto& anchor_body: bodies) {
+      if (body == anchor_body) {
         continue;
       }
 
-      particle->AddForce(
-        force::GenerateSpring(*particle, anchor_particle->position, 200.f, 1500.f)
+      body->AddForce(
+        force::GenerateSpring(*body, anchor_body->position, 200.f, 1500.f)
       );
     }
 
-    // if (IsInRect(*particle, liquid)) {
-    //   particle->AddForce(force::GenerateDragSimple(*particle, 0.04));
+    // if (IsInRect(*body, liquid)) {
+    //   body->AddForce(force::GenerateDragSimple(*body, 0.04));
     // }
   }
 
-  for (auto& particle: particles) {
-    particle->Integrate(delta_time);
+  for (auto& body: bodies) {
+    body->Integrate(delta_time);
   }
 
-  for (auto& particle: particles) {
-    // Keep the particle in the screen (The entire circle)
-    const Vec2 screen_start = Vec2(particle->radius, particle->radius);
+  for (auto& body: bodies) {
+    // Keep the body in the screen (The entire circle)
+    const Vec2 screen_start = Vec2(body->radius, body->radius);
 
     const Vec2 screen_end = Vec2(
-      static_cast<float>(Graphics::Width()) - particle->radius,
-      static_cast<float>(Graphics::Height()) - particle->radius
+      static_cast<float>(Graphics::Width()) - body->radius,
+      static_cast<float>(Graphics::Height()) - body->radius
     );
 
-    if (particle->position.x > screen_end.x
-        || particle->position.x < screen_start.x) {
-      particle->position.x =
-        std::clamp(particle->position.x, screen_start.x, screen_end.x);
+    if (body->position.x > screen_end.x
+        || body->position.x < screen_start.x) {
+      body->position.x =
+        std::clamp(body->position.x, screen_start.x, screen_end.x);
 
-      particle->velocity.x *= -1.f;
+      body->velocity.x *= -1.f;
     }
 
-    if (particle->position.y > screen_end.y
-        || particle->position.y < screen_start.y) {
-      particle->position.y =
-        std::clamp(particle->position.y, screen_start.y, screen_end.y);
+    if (body->position.y > screen_end.y
+        || body->position.y < screen_start.y) {
+      body->position.y =
+        std::clamp(body->position.y, screen_start.y, screen_end.y);
 
-      particle->velocity.y *= -0.4f;
+      body->velocity.y *= -0.4f;
     }
   }
 }
@@ -195,24 +195,24 @@ void Application::Render() {
 
   DrawSDLRect(liquid, 0xFF6E3713);
 
-  for (std::unique_ptr<Particle>& particle: particles) {
+  for (std::unique_ptr<Body>& body: bodies) {
     Graphics::DrawFillCircle(
-      static_cast<int>(particle->position.x),
-      static_cast<int>(particle->position.y),
-      static_cast<int>(particle->radius),
+      static_cast<int>(body->position.x),
+      static_cast<int>(body->position.y),
+      static_cast<int>(body->radius),
       0xFFFFFFFF
     );
 
-    for (auto& anchor_particle: particles) {
-      if (particle == anchor_particle) {
+    for (auto& anchor_body: bodies) {
+      if (body == anchor_body) {
         continue;
       }
 
       Graphics::DrawLine(
-        particle->position.x,
-        particle->position.y,
-        anchor_particle->position.x,
-        anchor_particle->position.y,
+        body->position.x,
+        body->position.y,
+        anchor_body->position.x,
+        anchor_body->position.y,
         0xFF6E3713
       );
     }

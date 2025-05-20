@@ -3,13 +3,13 @@
 
 #include <memory>
 #include <vector>
-#include "Physics/Particle.h"
+#include "Physics/Body.h"
 #include "SDL_rect.h"
 
 class Application {
 private:
 
-  std::vector<std::unique_ptr<Particle>> particles{};
+  std::vector<std::unique_ptr<Body>> bodies{};
 
   int time_prev_frame{0};
 

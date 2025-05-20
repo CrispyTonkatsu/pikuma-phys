@@ -3,7 +3,7 @@
 
 #include "Vec2.h"
 
-class Particle {
+class Body {
 public:
 
   Vec2 position{};
@@ -15,13 +15,13 @@ public:
   float inv_mass{1.f};
   float radius{1.f};
 
-  Particle(Vec2 position, float mass, float radius);
-  ~Particle() = default;
+  Body(Vec2 position, float mass, float radius);
+  ~Body() = default;
 
-  Particle(const Particle&) = default;
-  Particle(Particle&&) = delete;
-  Particle& operator=(const Particle&) = default;
-  Particle& operator=(Particle&&) = delete;
+  Body(const Body&) = default;
+  Body(Body&&) = delete;
+  Body& operator=(const Body&) = default;
+  Body& operator=(Body&&) = delete;
 
   /**
    * @brief Integrate the new position of the particle using Implicit Euler's

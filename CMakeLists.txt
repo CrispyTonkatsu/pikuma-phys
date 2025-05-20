@@ -30,7 +30,7 @@ add_executable(engine
 ./src/Graphics.cpp
 ./src/Application.cpp
 ./src/Physics/Vec2.cpp
-./src/Physics/Particle.cpp
+./src/Physics/Body.cpp
 ./src/Physics/Force.cpp
 )
 
