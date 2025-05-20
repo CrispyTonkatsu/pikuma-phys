@@ -1,5 +1,4 @@
 #include "Particle.h"
-#include "Constants.h"
 
 Particle::Particle(Vec2 position, float mass, float radius):
     position(position),
@@ -9,7 +8,7 @@ Particle::Particle(Vec2 position, float mass, float radius):
 
 void Particle::Integrate(float dt) {
   // Gravity can just be added to not do an extra multiplication
-  acceleration = (net_force * inv_mass + GRAVITY) * PIXELS_PER_METER;
+  acceleration = net_force * inv_mass;
   velocity += acceleration * dt;
   position += velocity * dt;
 

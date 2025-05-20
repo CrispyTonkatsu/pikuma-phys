@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include "Physics/Particle.h"
+#include "SDL_rect.h"
 
 class Application {
 private:
@@ -14,6 +15,8 @@ private:
 
   bool running = false;
 
+  SDL_Rect liquid{};
+
 public:
 
   Application() = default;
@@ -23,7 +26,7 @@ public:
   Application& operator=(Application&&) = delete;
   ~Application() = default;
 
-  bool IsRunning() const;
+  [[nodiscard]] bool IsRunning() const;
   void Setup();
   void Input();
   void Update();

@@ -17,4 +17,7 @@ const int PIXELS_PER_METER{50};
 // Standard accelerations
 const Vec2 GRAVITY{0.f, 9.81f};
 
+// Physics Constants
+const float GRAVITATIONAL_CONSTANT = 0.000000000066742;
+
 #endif

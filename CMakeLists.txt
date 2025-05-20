@@ -31,6 +31,7 @@ add_executable(engine
 ./src/Application.cpp
 ./src/Physics/Vec2.cpp
 ./src/Physics/Particle.cpp
+./src/Physics/Force.cpp
 )
 
 target_link_libraries(engine OpenGL SDL2 SDL2_image SDL2_gfx)

@@ -2,8 +2,32 @@
 #include <algorithm>
 #include "Graphics.h"
 #include "Physics/Constants.h"
+#include "Physics/Force.h"
 #include "Physics/Particle.h"
+#include "SDL_events.h"
+#include "SDL_mouse.h"
+#include "SDL_stdinc.h"
 #include "SDL_timer.h"
+
+bool IsInRect(Particle& particle, SDL_Rect& rect) {
+  // NOLINTBEGIN
+  return (particle.position.x >= rect.x
+          && particle.position.x <= (rect.x + rect.w))
+      && (particle.position.y >= rect.y
+          && particle.position.y <= (rect.y + rect.h));
+  // NOLINTEND
+}
+
+void DrawSDLRect(SDL_Rect& rect, Uint32 color) {
+  Graphics::DrawFillRect(
+    rect.x + (rect.w / 2),
+    rect.y + (rect.h / 2),
+    rect.w,
+    rect.h,
+    color
+  );
+}
+
 
 bool Application::IsRunning() const { return running; }
 
@@ -28,6 +52,12 @@ void Application::Setup() {
       12.f
     )
   );
+
+  liquid.x = 0;
+  liquid.y = Graphics::Height() / 2;
+
+  liquid.w = Graphics::Width();
+  liquid.h = Graphics::Height() / 2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,25 +67,44 @@ void Application::Input() {
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     switch (event.type) {
-      case SDL_QUIT: running = false; break;
-      case SDL_KEYDOWN:
-        if (event.key.keysym.sym == SDLK_ESCAPE) {
+      case SDL_QUIT:
+        {
           running = false;
         }
+        break;
+      case SDL_KEYDOWN:
+        {
+          if (event.key.keysym.sym == SDLK_ESCAPE) {
+            running = false;
+          }
 
-        auto& particle = *particles.front();
+          auto& particle = *particles.front();
 
-        if (event.key.keysym.sym == SDLK_UP) {
-          particle.AddForce({0.f, -50.f});
+          if (event.key.keysym.sym == SDLK_UP) {
+            particle.AddForce({0.f, -50.f});
+          }
+          if (event.key.keysym.sym == SDLK_DOWN) {
+            particle.AddForce({0.f, 50.f});
+          }
+          if (event.key.keysym.sym == SDLK_LEFT) {
+            particle.AddForce({-50.f, 0.f});
+          }
+          if (event.key.keysym.sym == SDLK_RIGHT) {
+            particle.AddForce({50.f, 0.f});
+          }
         }
-        if (event.key.keysym.sym == SDLK_DOWN) {
-          particle.AddForce({0.f, 50.f});
-        }
-        if (event.key.keysym.sym == SDLK_LEFT) {
-          particle.AddForce({-50.f, 0.f});
-        }
-        if (event.key.keysym.sym == SDLK_RIGHT) {
-          particle.AddForce({50.f, 0.f});
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+        {
+          int x = 0, y = 0;
+          SDL_GetMouseState(&x, &y);
+          particles.emplace_back(
+            std::make_unique<Particle>(
+              Vec2(static_cast<float>(x), static_cast<float>(y)),
+              1.f,
+              4.f
+            )
+          );
         }
         break;
     }
@@ -65,6 +114,7 @@ void Application::Input() {
 ///////////////////////////////////////////////////////////////////////////////
 // Update function (called several times per second to update objects)
 ///////////////////////////////////////////////////////////////////////////////
+
 void Application::Update() {
 
   // Check if we are too fast, if so, wait until the desired time per frame
@@ -84,9 +134,19 @@ void Application::Update() {
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
-  for (std::unique_ptr<Particle>& particle: particles) {
-    particle->Integrate(delta_time);
+  for (auto& particle: particles) {
+    particle->AddForce(force::GenerateWeight(*particle));
 
+    if (IsInRect(*particle, liquid)) {
+      particle->AddForce(force::GenerateDragSimple(*particle, 0.04));
+    }
+  }
+
+  for (auto& particle: particles) {
+    particle->Integrate(delta_time);
+  }
+
+  for (auto& particle: particles) {
     // Keep the particle in the screen (The entire circle)
     const Vec2 screen_start = Vec2(particle->radius, particle->radius);
 
@@ -118,6 +178,8 @@ void Application::Update() {
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Render() {
   Graphics::ClearScreen(0xFF056263);
+
+  DrawSDLRect(liquid, 0xFF6E3713);
 
   for (std::unique_ptr<Particle>& particle: particles) {
     Graphics::DrawFillCircle(
