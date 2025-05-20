@@ -1,5 +1,6 @@
 #include "Application.h"
 #include <algorithm>
+#include <execution>
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
@@ -28,7 +29,6 @@ void DrawSDLRect(SDL_Rect& rect, Uint32 color) {
   );
 }
 
-
 bool Application::IsRunning() const { return running; }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,27 +37,28 @@ bool Application::IsRunning() const { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  particles.emplace_back(
-    std::make_unique<Particle>(
-      Vec2(Graphics::Width<float>() * 0.4f, Graphics::Height<float>() * 0.1f),
-      1.f,
-      4.f
-    )
-  );
+  const float spacing = 100.f;
 
-  particles.emplace_back(
-    std::make_unique<Particle>(
-      Vec2(Graphics::Width<float>() * 0.6f, Graphics::Height<float>() * 0.1f),
-      3.f,
-      12.f
-    )
-  );
+  for (size_t i = 0; i < 2; i++) {
+    for (size_t j = 0; j < 2; j++) {
+      particles.emplace_back(
+        std::make_unique<Particle>(
+          Vec2(
+            Graphics::Width<float>() * 0.4f + i * spacing,
+            Graphics::Height<float>() * 0.1f + j * spacing
+          ),
+          1.f,
+          6.f
+        )
+      );
+    }
+  }
 
   liquid.x = 0;
-  liquid.y = Graphics::Height() / 2;
+  liquid.y = 0;
 
   liquid.w = Graphics::Width();
-  liquid.h = Graphics::Height() / 2;
+  liquid.h = Graphics::Height() * 0.1f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,17 +81,19 @@ void Application::Input() {
 
           auto& particle = *particles.front();
 
+          const float strength = 10000.f;
+
           if (event.key.keysym.sym == SDLK_UP) {
-            particle.AddForce({0.f, -50.f});
+            particle.AddForce({0.f, -strength});
           }
           if (event.key.keysym.sym == SDLK_DOWN) {
-            particle.AddForce({0.f, 50.f});
+            particle.AddForce({0.f, strength});
           }
           if (event.key.keysym.sym == SDLK_LEFT) {
-            particle.AddForce({-50.f, 0.f});
+            particle.AddForce({-strength, 0.f});
           }
           if (event.key.keysym.sym == SDLK_RIGHT) {
-            particle.AddForce({50.f, 0.f});
+            particle.AddForce({strength, 0.f});
           }
         }
         break;
@@ -136,10 +139,21 @@ void Application::Update() {
 
   for (auto& particle: particles) {
     particle->AddForce(force::GenerateWeight(*particle));
+    particle->AddForce(force::GenerateDragSimple(*particle, 0.01));
 
-    if (IsInRect(*particle, liquid)) {
-      particle->AddForce(force::GenerateDragSimple(*particle, 0.04));
+    for (auto& anchor_particle: particles) {
+      if (particle == anchor_particle) {
+        continue;
+      }
+
+      particle->AddForce(
+        force::GenerateSpring(*particle, anchor_particle->position, 200.f, 1500.f)
+      );
     }
+
+    // if (IsInRect(*particle, liquid)) {
+    //   particle->AddForce(force::GenerateDragSimple(*particle, 0.04));
+    // }
   }
 
   for (auto& particle: particles) {
@@ -168,7 +182,7 @@ void Application::Update() {
       particle->position.y =
         std::clamp(particle->position.y, screen_start.y, screen_end.y);
 
-      particle->velocity.y *= -1.f;
+      particle->velocity.y *= -0.4f;
     }
   }
 }
@@ -188,6 +202,20 @@ void Application::Render() {
       static_cast<int>(particle->radius),
       0xFFFFFFFF
     );
+
+    for (auto& anchor_particle: particles) {
+      if (particle == anchor_particle) {
+        continue;
+      }
+
+      Graphics::DrawLine(
+        particle->position.x,
+        particle->position.y,
+        anchor_particle->position.x,
+        anchor_particle->position.y,
+        0xFF6E3713
+      );
+    }
   }
 
   Graphics::RenderFrame();

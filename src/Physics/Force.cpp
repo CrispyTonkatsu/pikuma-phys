@@ -41,5 +41,5 @@ Vec2 force::GenerateSpring(
   Vec2 between = particle.position - anchor;
   float stretch_length = between.Magnitude() - rest_length;
 
-  return between.UnitVector() * stretch_length * spring_constant;
+  return between.UnitVector() * stretch_length * -spring_constant;
 }
