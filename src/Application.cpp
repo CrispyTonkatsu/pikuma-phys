@@ -1,10 +1,11 @@
 #include "Application.h"
 #include <algorithm>
-#include <execution>
+#include <memory>
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Force.h"
 #include "Physics/Body.h"
+#include "Physics/Shape.h"
 #include "SDL_events.h"
 #include "SDL_mouse.h"
 #include "SDL_stdinc.h"
@@ -12,10 +13,8 @@
 
 bool IsInRect(Body& body, SDL_Rect& rect) {
   // NOLINTBEGIN
-  return (body.position.x >= rect.x
-          && body.position.x <= (rect.x + rect.w))
-      && (body.position.y >= rect.y
-          && body.position.y <= (rect.y + rect.h));
+  return (body.position.x >= rect.x && body.position.x <= (rect.x + rect.w))
+      && (body.position.y >= rect.y && body.position.y <= (rect.y + rect.h));
   // NOLINTEND
 }
 
@@ -37,28 +36,19 @@ bool Application::IsRunning() const { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  const float spacing = 100.f;
-
-  for (size_t i = 0; i < 2; i++) {
-    for (size_t j = 0; j < 2; j++) {
-      bodies.emplace_back(
-        std::make_unique<Body>(
-          Vec2(
-            Graphics::Width<float>() * 0.4f + i * spacing,
-            Graphics::Height<float>() * 0.1f + j * spacing
-          ),
-          1.f,
-          6.f
-        )
-      );
-    }
-  }
+  bodies.emplace_back(
+    std::make_unique<Body>(
+      std::make_unique<CircleShape>(50.f),
+      Vec2(Graphics::Width<float>() * 0.4f, Graphics::Height<float>() * 0.1f),
+      1.f
+    )
+  );
 
   liquid.x = 0;
   liquid.y = 0;
 
   liquid.w = Graphics::Width();
-  liquid.h = Graphics::Height() * 0.1f;
+  liquid.h = Graphics::Height() * 0.1f; // NOLINT
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -101,11 +91,12 @@ void Application::Input() {
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
+
           bodies.emplace_back(
             std::make_unique<Body>(
+              std::make_unique<CircleShape>(6.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
-              1.f,
-              4.f
+              1.f
             )
           );
         }
@@ -139,21 +130,12 @@ void Application::Update() {
 
   for (auto& body: bodies) {
     body->AddForce(force::GenerateWeight(*body));
-    body->AddForce(force::GenerateDragSimple(*body, 0.01));
 
-    for (auto& anchor_body: bodies) {
-      if (body == anchor_body) {
-        continue;
-      }
+    body->AddTorque(20.f);
 
-      body->AddForce(
-        force::GenerateSpring(*body, anchor_body->position, 200.f, 1500.f)
-      );
+    if (IsInRect(*body, liquid)) {
+      body->AddForce(force::GenerateDragSimple(*body, 0.04));
     }
-
-    // if (IsInRect(*body, liquid)) {
-    //   body->AddForce(force::GenerateDragSimple(*body, 0.04));
-    // }
   }
 
   for (auto& body: bodies) {
@@ -162,27 +144,33 @@ void Application::Update() {
 
   for (auto& body: bodies) {
     // Keep the body in the screen (The entire circle)
-    const Vec2 screen_start = Vec2(body->radius, body->radius);
+
+    auto* circle_opt = body->shape->as<CircleShape>();
+    if (circle_opt == nullptr) {
+      continue;
+    }
+
+    auto& circle = *circle_opt;
+
+    const Vec2 screen_start = Vec2(circle.radius, circle.radius);
 
     const Vec2 screen_end = Vec2(
-      static_cast<float>(Graphics::Width()) - body->radius,
-      static_cast<float>(Graphics::Height()) - body->radius
+      static_cast<float>(Graphics::Width()) - circle.radius,
+      static_cast<float>(Graphics::Height()) - circle.radius
     );
 
-    if (body->position.x > screen_end.x
-        || body->position.x < screen_start.x) {
+    if (body->position.x > screen_end.x || body->position.x < screen_start.x) {
       body->position.x =
         std::clamp(body->position.x, screen_start.x, screen_end.x);
 
       body->velocity.x *= -1.f;
     }
 
-    if (body->position.y > screen_end.y
-        || body->position.y < screen_start.y) {
+    if (body->position.y > screen_end.y || body->position.y < screen_start.y) {
       body->position.y =
         std::clamp(body->position.y, screen_start.y, screen_end.y);
 
-      body->velocity.y *= -0.4f;
+      body->velocity.y *= -1.f;
     }
   }
 }
@@ -196,26 +184,11 @@ void Application::Render() {
   DrawSDLRect(liquid, 0xFF6E3713);
 
   for (std::unique_ptr<Body>& body: bodies) {
-    Graphics::DrawFillCircle(
-      static_cast<int>(body->position.x),
-      static_cast<int>(body->position.y),
-      static_cast<int>(body->radius),
-      0xFFFFFFFF
-    );
-
-    for (auto& anchor_body: bodies) {
-      if (body == anchor_body) {
-        continue;
-      }
-
-      Graphics::DrawLine(
-        body->position.x,
-        body->position.y,
-        anchor_body->position.x,
-        anchor_body->position.y,
-        0xFF6E3713
-      );
+    if (body->shape == nullptr) {
+      continue;
     }
+
+    body->shape->Render(body->position, body->rotation);
   }
 
   Graphics::RenderFrame();

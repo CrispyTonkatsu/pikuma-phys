@@ -20,8 +20,17 @@ struct Shape {
   Shape& operator=(const Shape&) = default;
   Shape& operator=(Shape&&) = delete;
 
+  template<typename T>
+  T* as() {
+    return dynamic_cast<T*>(this);
+  }
+
   [[nodiscard]] virtual ShapeType GetType() const = 0;
-  [[nodiscard]] virtual float GetMomentOfInertia() const = 0;
+
+  // TODO: Actually implement this
+  [[nodiscard]] virtual float GetMomentOfInertia(float) const { return 0.f; }
+
+  virtual void Render(Vec2 position, float rotation) const = 0;
 };
 
 struct CircleShape : public Shape {
@@ -36,6 +45,10 @@ struct CircleShape : public Shape {
   CircleShape& operator=(CircleShape&&) = delete;
 
   [[nodiscard]] ShapeType GetType() const override;
+
+  [[nodiscard]] float GetMomentOfInertia(float mass) const override;
+
+  void Render(Vec2 position, float rotation) const override;
 };
 
 struct PolygonShape : public Shape {
@@ -67,6 +80,8 @@ struct BoxShape : public PolygonShape {
   BoxShape& operator=(BoxShape&&) = delete;
 
   [[nodiscard]] ShapeType GetType() const override;
+
+  [[nodiscard]] float GetMomentOfInertia(float mass) const override;
 };
 
 #endif

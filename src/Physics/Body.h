@@ -8,20 +8,29 @@
 class Body {
 public:
 
+  // Linear Properties
   Vec2 position{};
+
   Vec2 velocity{};
   Vec2 acceleration{};
   Vec2 net_force{};
 
-  // TODO: Angular Properties
+  // Angular Properties (in radians)
+  float rotation{0.f};
+
+  float angular_velocity{0.f};
+  float angular_acceleration{0.f};
+  float net_torque{0.f};
 
   std::unique_ptr<Shape> shape{nullptr};
 
   float mass{1.f};
   float inv_mass{1.f};
-  float radius{1.f};
 
-  Body(Vec2 position, float mass, float radius);
+  float inertia{1.f};
+  float inv_inertia{1.f};
+
+  Body(std::unique_ptr<Shape> shape, Vec2 position, float mass);
   ~Body() = default;
 
   Body(const Body&) = delete;
@@ -42,11 +51,15 @@ public:
    */
   void AddForce(Vec2 force);
 
+  void AddTorque(float torque);
+
   /**
    * @brief This will clear all forces (it should only be used once per frame,
    * right after integration)
    */
   void ClearForces();
+
+  void ClearTorques();
 };
 
 #endif
