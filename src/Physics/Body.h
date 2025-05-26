@@ -1,6 +1,8 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
+#include <memory>
+#include "Shape.h"
 #include "Vec2.h"
 
 class Body {
@@ -13,7 +15,7 @@ public:
 
   // TODO: Angular Properties
 
-  // TODO: std::unique_ptr<Shape> shape{nullptr};
+  std::unique_ptr<Shape> shape{nullptr};
 
   float mass{1.f};
   float inv_mass{1.f};
@@ -22,10 +24,10 @@ public:
   Body(Vec2 position, float mass, float radius);
   ~Body() = default;
 
-  Body(const Body&) = default;
-  Body(Body&&) = delete;
-  Body& operator=(const Body&) = default;
-  Body& operator=(Body&&) = delete;
+  Body(const Body&) = delete;
+  Body(Body&&) = default;
+  Body& operator=(const Body&) = delete;
+  Body& operator=(Body&&) = default;
 
   /**
    * @brief Integrate the new position of the particle using Implicit Euler's
