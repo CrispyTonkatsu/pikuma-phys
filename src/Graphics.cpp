@@ -1,5 +1,6 @@
 #include "Graphics.h"
 #include <iostream>
+#include "SDL_video.h"
 
 SDL_Window* Graphics::window = nullptr;
 SDL_Renderer* Graphics::renderer = nullptr;
@@ -17,8 +18,8 @@ bool Graphics::OpenWindow() {
   }
   SDL_DisplayMode display_mode;
   SDL_GetCurrentDisplayMode(0, &display_mode);
-  windowWidth = display_mode.w;
-  windowHeight = display_mode.h;
+  windowWidth = display_mode.w * 0.6f;
+  windowHeight = display_mode.h * 0.6f;
   window = SDL_CreateWindow(
     nullptr,
     0,
