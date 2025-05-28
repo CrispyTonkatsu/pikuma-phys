@@ -38,8 +38,8 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<CircleShape>(50.f),
-      Vec2(Graphics::Width<float>() * 0.4f, Graphics::Height<float>() * 0.1f),
+      std::make_unique<BoxShape>(200.f, 100.f),
+      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
       1.f
     )
   );
@@ -129,19 +129,21 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   for (auto& body: bodies) {
-    body->AddForce(force::GenerateWeight(*body));
+    // body->AddForce(force::GenerateWeight(*body));
 
-    body->AddTorque(20.f);
+    body->AddTorque(200.f);
 
-    if (IsInRect(*body, liquid)) {
-      body->AddForce(force::GenerateDragSimple(*body, 0.04));
-    }
+    // if (IsInRect(*body, liquid)) {
+    //   body->AddForce(force::GenerateDragSimple(*body, 0.04));
+    // }
   }
 
   for (auto& body: bodies) {
-    body->Integrate(delta_time);
+    body->Update(delta_time);
   }
 
+  // TODO: refactor into something that can be used generically for all body
+  // types
   for (auto& body: bodies) {
     // Keep the body in the screen (The entire circle)
 
@@ -188,7 +190,7 @@ void Application::Render() {
       continue;
     }
 
-    body->shape->Render(body->position, body->rotation);
+    body->shape->DebugRender(body->position, body->rotation);
   }
 
   Graphics::RenderFrame();

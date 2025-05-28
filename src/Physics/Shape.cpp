@@ -3,7 +3,7 @@
 
 CircleShape::CircleShape(float radius): Shape(), radius(radius) {}
 
-void CircleShape::Render(Vec2 position, float rotation) const {
+void CircleShape::DebugRender(Vec2 position, float rotation) const {
   Graphics::DrawCircle(
     static_cast<int>(position.x),
     static_cast<int>(position.y),
@@ -20,9 +20,23 @@ float CircleShape::GetMomentOfInertia(float mass) const {
 }
 
 PolygonShape::PolygonShape(const std::vector<Vec2>& vertices):
-    Shape(), vertices(vertices) {}
+    Shape(), local_vertices(vertices) {}
 
 ShapeType PolygonShape::GetType() const { return ShapeType::POLYGON; }
+
+void PolygonShape::UpdateVertices(Vec2 position, float rotation) {
+  world_vertices.clear();
+  world_vertices.reserve(local_vertices.size());
+
+  for (auto& vertex: local_vertices) {
+    Vec2 world_vertex = vertex.Rotate(rotation) + position;
+    world_vertices.push_back(world_vertex);
+  }
+}
+
+void PolygonShape::DebugRender(Vec2 position, float) const {
+  Graphics::DrawPolygon(position.x, position.y, world_vertices, 0xFFFFFFFF);
+}
 
 BoxShape::BoxShape(float width, float height):
     PolygonShape([width, height]() -> std::vector<Vec2> {
@@ -44,3 +58,4 @@ ShapeType BoxShape::GetType() const { return ShapeType::BOX; }
 float BoxShape::GetMomentOfInertia(float mass) const {
   return (1.f / 12.f) * (width * width + height * height) * mass;
 }
+

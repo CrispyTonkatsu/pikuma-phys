@@ -8,13 +8,24 @@ Body::Body(std::unique_ptr<Shape> shape, Vec2 position, float mass):
     inertia(this->shape->GetMomentOfInertia(mass)),
     inv_inertia((inertia != 0.f) ? (1.f / inertia) : 0.f) {}
 
-void Body::Integrate(float dt) {
+void Body::Update(float dt) {
+  IntegrateLinear(dt);
+  IntegrateAngluar(dt);
+
+  if (shape->GetType() == ShapeType::BOX) {
+    shape->as<BoxShape>()->UpdateVertices(position, rotation);
+  }
+}
+
+void Body::IntegrateLinear(float dt) {
   acceleration = net_force * inv_mass;
   velocity += acceleration * dt;
   position += velocity * dt;
 
   ClearForces();
+}
 
+void Body::IntegrateAngluar(float dt) {
   angular_acceleration = net_torque * inv_inertia;
   angular_velocity += angular_acceleration * dt;
   rotation += angular_velocity * dt;

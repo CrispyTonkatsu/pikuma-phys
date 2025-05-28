@@ -38,12 +38,21 @@ public:
   Body& operator=(const Body&) = delete;
   Body& operator=(Body&&) = default;
 
+  void Update(float dt);
+
   /**
    * @brief Integrate the new position of the particle using Implicit Euler's
    * Method
    * @param dt Delta Time
    */
-  void Integrate(float dt);
+  void IntegrateLinear(float dt);
+
+  /**
+   * @brief Integrate the new position of the particle using Implicit Euler's
+   * Method
+   * @param dt Delta Time
+   */
+  void IntegrateAngluar(float dt);
 
   /**
    * @brief Adds to the net force of a particle

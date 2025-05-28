@@ -30,7 +30,7 @@ struct Shape {
   // TODO: Actually implement this
   [[nodiscard]] virtual float GetMomentOfInertia(float) const { return 0.f; }
 
-  virtual void Render(Vec2 position, float rotation) const = 0;
+  virtual void DebugRender(Vec2 position, float rotation) const = 0;
 };
 
 struct CircleShape : public Shape {
@@ -48,11 +48,12 @@ struct CircleShape : public Shape {
 
   [[nodiscard]] float GetMomentOfInertia(float mass) const override;
 
-  void Render(Vec2 position, float rotation) const override;
+  void DebugRender(Vec2 position, float rotation) const override;
 };
 
 struct PolygonShape : public Shape {
-  std::vector<Vec2> vertices;
+  std::vector<Vec2> local_vertices;
+  std::vector<Vec2> world_vertices{};
 
   explicit PolygonShape(const std::vector<Vec2>& vertices);
 
@@ -64,6 +65,10 @@ struct PolygonShape : public Shape {
   PolygonShape& operator=(PolygonShape&&) = delete;
 
   [[nodiscard]] ShapeType GetType() const override;
+
+  void UpdateVertices(Vec2 position, float rotation);
+
+  void DebugRender(Vec2 position, float rotation) const override;
 };
 
 struct BoxShape : public PolygonShape {
