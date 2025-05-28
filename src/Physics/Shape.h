@@ -2,6 +2,7 @@
 #define SHAPE_H
 
 #include <vector>
+#include "SDL_stdinc.h"
 #include "Vec2.h"
 
 enum class ShapeType {
@@ -30,7 +31,7 @@ struct Shape {
   // TODO: Actually implement this
   [[nodiscard]] virtual float GetMomentOfInertia(float) const { return 0.f; }
 
-  virtual void DebugRender(Vec2 position, float rotation) const = 0;
+  virtual void DebugRender(Vec2 position, float rotation, Uint32 color) const = 0;
 };
 
 struct CircleShape : public Shape {
@@ -48,7 +49,7 @@ struct CircleShape : public Shape {
 
   [[nodiscard]] float GetMomentOfInertia(float mass) const override;
 
-  void DebugRender(Vec2 position, float rotation) const override;
+  void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
 };
 
 struct PolygonShape : public Shape {
@@ -68,7 +69,7 @@ struct PolygonShape : public Shape {
 
   void UpdateVertices(Vec2 position, float rotation);
 
-  void DebugRender(Vec2 position, float rotation) const override;
+  void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
 };
 
 struct BoxShape : public PolygonShape {

@@ -12,7 +12,7 @@ void Body::Update(float dt) {
   IntegrateLinear(dt);
   IntegrateAngluar(dt);
 
-  if (shape->GetType() == ShapeType::BOX) {
+  if (shape->GetType() == ShapeType::BOX || shape->GetType() == ShapeType::POLYGON) {
     shape->as<BoxShape>()->UpdateVertices(position, rotation);
   }
 }

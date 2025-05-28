@@ -8,6 +8,8 @@
 class Body {
 public:
 
+  bool isColliding{false};
+
   // Linear Properties
   Vec2 position{};
 

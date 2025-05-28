@@ -1,10 +1,12 @@
 #include "Application.h"
 #include <algorithm>
+#include <cstddef>
 #include <memory>
 #include "Graphics.h"
+#include "Physics/Collision.h"
 #include "Physics/Constants.h"
-#include "Physics/Force.h"
 #include "Physics/Body.h"
+#include "Physics/Force.h"
 #include "Physics/Shape.h"
 #include "SDL_events.h"
 #include "SDL_mouse.h"
@@ -129,7 +131,7 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   for (auto& body: bodies) {
-    // body->AddForce(force::GenerateWeight(*body));
+    body->AddForce(force::GenerateWeight(*body));
 
     body->AddTorque(200.f);
 
@@ -140,13 +142,21 @@ void Application::Update() {
 
   for (auto& body: bodies) {
     body->Update(delta_time);
+    body->isColliding = false;
+  }
+
+  for (size_t i = 0; i < bodies.size() - 1; i++) {
+    for (size_t j = i + 1; j < bodies.size(); j++) {
+      if (collision_detection::IsColliding(*bodies[i], *bodies[j])) {
+        bodies[i]->isColliding = true;
+        bodies[j]->isColliding = true;
+      }
+    }
   }
 
   // TODO: refactor into something that can be used generically for all body
   // types
   for (auto& body: bodies) {
-    // Keep the body in the screen (The entire circle)
-
     auto* circle_opt = body->shape->as<CircleShape>();
     if (circle_opt == nullptr) {
       continue;
@@ -185,12 +195,18 @@ void Application::Render() {
 
   DrawSDLRect(liquid, 0xFF6E3713);
 
+  // This is just for nicer reading rendering, the course does not do this
+  // because the rendering should be done by the user of the physics library
   for (std::unique_ptr<Body>& body: bodies) {
     if (body->shape == nullptr) {
       continue;
     }
 
-    body->shape->DebugRender(body->position, body->rotation);
+    body->shape->DebugRender(
+      body->position,
+      body->rotation,
+      body->isColliding ? 0xFF0000FF : 0xFFFFFFFF
+    );
   }
 
   Graphics::RenderFrame();

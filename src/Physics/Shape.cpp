@@ -3,13 +3,17 @@
 
 CircleShape::CircleShape(float radius): Shape(), radius(radius) {}
 
-void CircleShape::DebugRender(Vec2 position, float rotation) const {
+void CircleShape::DebugRender(
+  Vec2 position,
+  float rotation,
+  Uint32 color
+) const {
   Graphics::DrawCircle(
     static_cast<int>(position.x),
     static_cast<int>(position.y),
     static_cast<int>(radius),
     rotation,
-    0xFFFFFFFF
+    color
   );
 }
 
@@ -34,8 +38,8 @@ void PolygonShape::UpdateVertices(Vec2 position, float rotation) {
   }
 }
 
-void PolygonShape::DebugRender(Vec2 position, float) const {
-  Graphics::DrawPolygon(position.x, position.y, world_vertices, 0xFFFFFFFF);
+void PolygonShape::DebugRender(Vec2 position, float, Uint32 color) const {
+  Graphics::DrawPolygon(position.x, position.y, world_vertices, color);
 }
 
 BoxShape::BoxShape(float width, float height):
@@ -58,4 +62,3 @@ ShapeType BoxShape::GetType() const { return ShapeType::BOX; }
 float BoxShape::GetMomentOfInertia(float mass) const {
   return (1.f / 12.f) * (width * width + height * height) * mass;
 }
-
