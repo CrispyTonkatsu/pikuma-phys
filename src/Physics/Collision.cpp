@@ -1,17 +1,21 @@
 #include "Collision.h"
+#include <optional>
 #include "Body.h"
 #include "Shape.h"
 
-bool collision_detection::IsColliding(Body& a, Body& b) {
+std::optional<Contact> collision_detection::IsColliding(Body& a, Body& b) {
   if (a.shape->GetType() == ShapeType::CIRCLE
       && b.shape->GetType() == ShapeType::CIRCLE) {
     return CircleCircleCollision(a, b);
   }
 
-  return false;
+  return std::nullopt;
 }
 
-bool collision_detection::CircleCircleCollision(Body& a, Body& b) {
+std::optional<Contact> collision_detection::CircleCircleCollision(
+  Body& a,
+  Body& b
+) {
   Vec2 to_other = b.position - a.position;
 
   CircleShape& ac = *a.shape->as<CircleShape>();

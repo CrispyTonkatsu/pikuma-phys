@@ -8,6 +8,7 @@
 #include "Physics/Body.h"
 #include "Physics/Force.h"
 #include "Physics/Shape.h"
+#include "Physics/Vec2.h"
 #include "SDL_events.h"
 #include "SDL_mouse.h"
 #include "SDL_stdinc.h"
@@ -40,7 +41,15 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<BoxShape>(200.f, 100.f),
+      std::make_unique<CircleShape>(100.f),
+      Vec2(Graphics::Width<float>() * 0.1f, Graphics::Height<float>() * 0.1f),
+      1.f
+    )
+  );
+
+  bodies.emplace_back(
+    std::make_unique<Body>(
+      std::make_unique<CircleShape>(200.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
       1.f
     )
@@ -103,6 +112,13 @@ void Application::Input() {
           );
         }
         break;
+      case SDL_MOUSEMOTION:
+        {
+          int x = 0, y = 0;
+          SDL_GetMouseState(&x, &y);
+          bodies[0]->position = Vec2(x, y);
+        }
+        break;
     }
   }
 }
@@ -131,10 +147,10 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   for (auto& body: bodies) {
-    body->AddForce(force::GenerateWeight(*body));
-
-    body->AddTorque(200.f);
-
+    // body->AddForce(force::GenerateWeight(*body));
+    //
+    // body->AddTorque(200.f);
+    //
     // if (IsInRect(*body, liquid)) {
     //   body->AddForce(force::GenerateDragSimple(*body, 0.04));
     // }
@@ -147,7 +163,11 @@ void Application::Update() {
 
   for (size_t i = 0; i < bodies.size() - 1; i++) {
     for (size_t j = i + 1; j < bodies.size(); j++) {
-      if (collision_detection::IsColliding(*bodies[i], *bodies[j])) {
+
+      auto contact_opt =
+        collision_detection::IsColliding(*bodies[i], *bodies[j]);
+
+      if (contact_opt.has_value()) {
         bodies[i]->isColliding = true;
         bodies[j]->isColliding = true;
       }

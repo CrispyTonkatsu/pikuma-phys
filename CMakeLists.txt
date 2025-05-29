@@ -34,6 +34,7 @@ add_executable(engine
 ./src/Physics/Force.cpp
 ./src/Physics/Shape.cpp
 ./src/Physics/Collision.cpp
+./src/Physics/Contact.cpp
 )
 
 target_link_libraries(engine OpenGL SDL2 SDL2_image SDL2_gfx)
