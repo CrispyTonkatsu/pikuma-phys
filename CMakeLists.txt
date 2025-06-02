@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -23,7 +23,7 @@ pkg_search_module(SDL_IMAGE REQUIRED SDL2_image)
 pkg_search_module(SDL_GFX REQUIRED SDL2_gfx)
 
 add_compile_options (-fdiagnostics-color=always)
-add_compile_options(-Wextra -Wall -Wpedantic -std=c++20)
+add_compile_options(-Wextra -Wall -Wpedantic)
 
 add_executable(engine 
 ./src/Main.cpp 

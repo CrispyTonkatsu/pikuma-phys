@@ -6,7 +6,6 @@
 #include "Physics/Collision.h"
 #include "Physics/Constants.h"
 #include "Physics/Body.h"
-#include "Physics/Force.h"
 #include "Physics/Shape.h"
 #include "Physics/Vec2.h"
 #include "SDL_events.h"
@@ -128,7 +127,6 @@ void Application::Input() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Application::Update() {
-
   // Check if we are too fast, if so, wait until the desired time per frame
   // is reached
   int time_to_wait =
@@ -145,6 +143,8 @@ void Application::Update() {
   delta_time = std::clamp(delta_time, 0.f, MAX_DELTA_TIME);
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
+
+  contacts.clear();
 
   for (auto& body: bodies) {
     // body->AddForce(force::GenerateWeight(*body));
@@ -170,6 +170,7 @@ void Application::Update() {
       if (contact_opt.has_value()) {
         bodies[i]->isColliding = true;
         bodies[j]->isColliding = true;
+        contacts.push_back(contact_opt.value());
       }
     }
   }
@@ -227,6 +228,20 @@ void Application::Render() {
       body->rotation,
       body->isColliding ? 0xFF0000FF : 0xFFFFFFFF
     );
+  }
+
+  for (auto& contact: contacts) {
+    // NOLINTBEGIN
+    Graphics::DrawFillCircle(contact.start.x, contact.start.y, 3, 0xFFFF00FF);
+    Graphics::DrawFillCircle(contact.end.x, contact.end.y, 3, 0xFFFF00FF);
+    Graphics::DrawLine(
+      contact.start.x,
+      contact.start.y,
+      contact.end.x,
+      contact.end.y,
+      0xFFFF00FF
+    );
+    // NOLINTEND
   }
 
   Graphics::RenderFrame();

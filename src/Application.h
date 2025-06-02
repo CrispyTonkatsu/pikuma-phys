@@ -4,10 +4,13 @@
 #include <memory>
 #include <vector>
 #include "Physics/Body.h"
+#include "Physics/Contact.h"
 #include "SDL_rect.h"
 
 class Application {
 private:
+
+  std::vector<Contact> contacts{};
 
   std::vector<std::unique_ptr<Body>> bodies{};
 

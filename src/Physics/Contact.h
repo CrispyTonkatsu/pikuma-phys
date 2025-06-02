@@ -5,8 +5,8 @@
 #include "Vec2.h"
 
 struct Contact {
-  Body* a{nullptr};
-  Body* b{nullptr};
+  Body* a;
+  Body* b;
 
   Vec2 start{};
   Vec2 end{};
@@ -14,10 +14,10 @@ struct Contact {
   Vec2 normal{};
   float depth{0.f};
 
-  Contact() = default;
+  Contact(Body& a, Body& b, Vec2 start, Vec2 end, Vec2 normal, float depth);
   Contact(const Contact&) = default;
   Contact(Contact&&) = delete;
-  Contact& operator=(const Contact&) = default;
+  Contact& operator=(const Contact&) = delete;
   Contact& operator=(Contact&&) = delete;
   ~Contact() = default;
 };
