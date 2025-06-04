@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <memory>
+#include "Constants.h"
 #include "Shape.h"
 #include "Vec2.h"
 
@@ -64,6 +65,8 @@ public:
 
   void AddTorque(float torque);
 
+  void ApplyImpulse(Vec2 impulse);
+
   /**
    * @brief This will clear all forces (it should only be used once per frame,
    * right after integration)
@@ -71,6 +74,8 @@ public:
   void ClearForces();
 
   void ClearTorques();
+
+  [[nodiscard]] bool isStatic() const;
 };
 
 #endif

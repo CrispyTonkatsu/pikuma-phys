@@ -20,6 +20,8 @@ struct Contact {
   Contact& operator=(const Contact&) = delete;
   Contact& operator=(Contact&&) = delete;
   ~Contact() = default;
+
+  void ResolvePenetration() const;
 };
 
 #endif

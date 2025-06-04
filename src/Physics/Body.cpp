@@ -9,10 +9,16 @@ Body::Body(std::unique_ptr<Shape> shape, Vec2 position, float mass):
     inv_inertia((inertia != 0.f) ? (1.f / inertia) : 0.f) {}
 
 void Body::Update(float dt) {
+  // NOTE: Consider how this could be used to lock only certain axes
+  if (isStatic()) {
+    return;
+  }
+
   IntegrateLinear(dt);
   IntegrateAngluar(dt);
 
-  if (shape->GetType() == ShapeType::BOX || shape->GetType() == ShapeType::POLYGON) {
+  if (shape->GetType() == ShapeType::BOX
+      || shape->GetType() == ShapeType::POLYGON) {
     shape->as<BoxShape>()->UpdateVertices(position, rotation);
   }
 }
@@ -37,6 +43,16 @@ void Body::AddForce(Vec2 force) { net_force += force; }
 
 void Body::AddTorque(float torque) { net_torque += torque; }
 
+void Body::ApplyImpulse(Vec2 impulse) {
+  if (isStatic()) {
+    return;
+  }
+
+  velocity += impulse * inv_mass;
+}
+
 void Body::ClearForces() { net_force = Vec2(0.f, 0.f); }
 
 void Body::ClearTorques() { net_torque = 0.f; }
+
+bool Body::isStatic() const { return std::abs(inv_mass - 0.0f) < EPSILON; }

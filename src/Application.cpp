@@ -6,6 +6,7 @@
 #include "Physics/Collision.h"
 #include "Physics/Constants.h"
 #include "Physics/Body.h"
+#include "Physics/Force.h"
 #include "Physics/Shape.h"
 #include "Physics/Vec2.h"
 #include "SDL_events.h"
@@ -40,17 +41,9 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<CircleShape>(100.f),
-      Vec2(Graphics::Width<float>() * 0.1f, Graphics::Height<float>() * 0.1f),
-      1.f
-    )
-  );
-
-  bodies.emplace_back(
-    std::make_unique<Body>(
       std::make_unique<CircleShape>(200.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-      1.f
+      0.f
     )
   );
 
@@ -104,20 +97,20 @@ void Application::Input() {
 
           bodies.emplace_back(
             std::make_unique<Body>(
-              std::make_unique<CircleShape>(6.f),
+              std::make_unique<CircleShape>(60.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f
             )
           );
         }
         break;
-      case SDL_MOUSEMOTION:
-        {
-          int x = 0, y = 0;
-          SDL_GetMouseState(&x, &y);
-          bodies[0]->position = Vec2(x, y);
-        }
-        break;
+        // case SDL_MOUSEMOTION:
+        //   {
+        //     int x = 0, y = 0;
+        //     SDL_GetMouseState(&x, &y);
+        //     bodies[0]->position = Vec2(x, y);
+        //   }
+        //   break;
     }
   }
 }
@@ -147,7 +140,7 @@ void Application::Update() {
   contacts.clear();
 
   for (auto& body: bodies) {
-    // body->AddForce(force::GenerateWeight(*body));
+    body->AddForce(force::GenerateWeight(*body));
     //
     // body->AddTorque(200.f);
     //
@@ -173,6 +166,10 @@ void Application::Update() {
         contacts.push_back(contact_opt.value());
       }
     }
+  }
+
+  for (auto& contact: contacts) {
+    contact.ResolvePenetration();
   }
 
   // TODO: refactor into something that can be used generically for all body

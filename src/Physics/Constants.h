@@ -4,6 +4,9 @@
 
 #include "Vec2.h"
 
+// Flotaing point utilities
+const float EPSILON{0.00005f};
+
 // FPS constants, these are used to implement a delta time process
 const int FPS{60};
 const int MILISECONDS_PER_FRAME{1000 / FPS};
