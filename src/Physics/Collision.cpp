@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include <cstdlib>
 #include <optional>
 #include "Body.h"
 #include "Contact.h"
@@ -29,14 +30,14 @@ std::optional<Contact> collision_detection::CircleCircleCollision(
     return std::nullopt;
   }
 
-  Vec2 normal = -to_other.UnitVector();
+  Vec2 normal = to_other.UnitVector();
 
   return std::make_optional<Contact>(
     a,
     b,
-    a.position + (-normal * ac.radius),
-    b.position + (normal * bc.radius),
+    b.position - (normal * bc.radius),
+    a.position + (normal * ac.radius),
     normal,
-    depth
+    std::abs(depth)
   );
 }

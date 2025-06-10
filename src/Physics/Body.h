@@ -2,7 +2,6 @@
 #define PARTICLE_H
 
 #include <memory>
-#include "Constants.h"
 #include "Shape.h"
 #include "Vec2.h"
 
@@ -33,7 +32,9 @@ public:
   float inertia{1.f};
   float inv_inertia{1.f};
 
-  Body(std::unique_ptr<Shape> shape, Vec2 position, float mass);
+  float restitution{0.f};
+
+  Body(std::unique_ptr<Shape> shape, Vec2 position, float mass, float restitution);
   ~Body() = default;
 
   Body(const Body&) = delete;
@@ -75,7 +76,7 @@ public:
 
   void ClearTorques();
 
-  [[nodiscard]] bool isStatic() const;
+  [[nodiscard]] bool IsStatic() const;
 };
 
 #endif

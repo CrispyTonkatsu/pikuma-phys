@@ -43,7 +43,8 @@ void Application::Setup() {
     std::make_unique<Body>(
       std::make_unique<CircleShape>(200.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-      0.f
+      0.f,
+      1.f
     )
   );
 
@@ -99,6 +100,7 @@ void Application::Input() {
             std::make_unique<Body>(
               std::make_unique<CircleShape>(60.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
+              1.f,
               1.f
             )
           );
@@ -169,7 +171,7 @@ void Application::Update() {
   }
 
   for (auto& contact: contacts) {
-    contact.ResolvePenetration();
+    contact.ResolveCollision();
   }
 
   // TODO: refactor into something that can be used generically for all body

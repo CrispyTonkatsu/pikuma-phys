@@ -22,6 +22,8 @@ struct Contact {
   ~Contact() = default;
 
   void ResolvePenetration() const;
+
+  void ResolveCollision() const;
 };
 
 #endif
