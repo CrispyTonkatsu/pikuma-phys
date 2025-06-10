@@ -31,7 +31,13 @@ struct Shape {
   // TODO: Actually implement this
   [[nodiscard]] virtual float GetMomentOfInertia(float) const { return 0.f; }
 
-  virtual void DebugRender(Vec2 position, float rotation, Uint32 color) const = 0;
+  virtual void DebugRender(
+    Vec2 position,
+    float rotation,
+    Uint32 color
+  ) const = 0;
+
+  [[nodiscard]] virtual bool IsPoly() const;
 };
 
 struct CircleShape : public Shape {
@@ -70,6 +76,10 @@ struct PolygonShape : public Shape {
   void UpdateVertices(Vec2 position, float rotation);
 
   void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
+
+  [[nodiscard]] bool IsPoly() const override;
+
+  [[nodiscard]] Vec2 support_point(Vec2 direction) const;
 };
 
 struct BoxShape : public PolygonShape {

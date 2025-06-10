@@ -41,7 +41,7 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<CircleShape>(200.f),
+      std::make_unique<BoxShape>(200.f, 100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
       0.f,
       1.f
@@ -98,7 +98,7 @@ void Application::Input() {
 
           bodies.emplace_back(
             std::make_unique<Body>(
-              std::make_unique<CircleShape>(60.f),
+              std::make_unique<BoxShape>(60.f, 100.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f,
               1.f

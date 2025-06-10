@@ -16,6 +16,11 @@ Body::Body(
     restitution(restitution) {}
 
 void Body::Update(float dt) {
+  if (shape->GetType() == ShapeType::BOX
+      || shape->GetType() == ShapeType::POLYGON) {
+    shape->as<BoxShape>()->UpdateVertices(position, rotation);
+  }
+
   // NOTE: Consider how this could be used to lock only certain axes
   if (IsStatic()) {
     return;
@@ -23,11 +28,6 @@ void Body::Update(float dt) {
 
   IntegrateLinear(dt);
   IntegrateAngluar(dt);
-
-  if (shape->GetType() == ShapeType::BOX
-      || shape->GetType() == ShapeType::POLYGON) {
-    shape->as<BoxShape>()->UpdateVertices(position, rotation);
-  }
 }
 
 void Body::IntegrateLinear(float dt) {

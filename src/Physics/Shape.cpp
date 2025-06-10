@@ -1,5 +1,10 @@
 #include "Shape.h"
+#include <algorithm>
+#include <cmath>
+#include <numeric>
 #include "../Graphics.h"
+
+bool Shape::IsPoly() const { return false; }
 
 CircleShape::CircleShape(float radius): Shape(), radius(radius) {}
 
@@ -24,7 +29,24 @@ float CircleShape::GetMomentOfInertia(float mass) const {
 }
 
 PolygonShape::PolygonShape(const std::vector<Vec2>& vertices):
-    Shape(), local_vertices(vertices) {}
+    Shape(), local_vertices(vertices) {
+  // Sorting all the vertices to be in counter clockwise order
+  Vec2 center =
+    std::accumulate(local_vertices.begin(), local_vertices.end(), Vec2())
+    * (1.f / static_cast<float>(local_vertices.size()));
+
+  std::ranges::sort(
+    local_vertices,
+    [center](const Vec2& lhs, const Vec2& rhs) -> bool {
+      const auto angle_to = [](Vec2 a, Vec2 b) {
+        Vec2 to = b - a;
+        return atan2(to.y, to.x);
+      };
+
+      return angle_to(center, lhs) < angle_to(center, rhs);
+    }
+  );
+}
 
 ShapeType PolygonShape::GetType() const { return ShapeType::POLYGON; }
 
@@ -40,6 +62,22 @@ void PolygonShape::UpdateVertices(Vec2 position, float rotation) {
 
 void PolygonShape::DebugRender(Vec2 position, float, Uint32 color) const {
   Graphics::DrawPolygon(position.x, position.y, world_vertices, color);
+}
+
+bool PolygonShape::IsPoly() const { return true; }
+
+Vec2 PolygonShape::support_point(Vec2 direction) const {
+  if (local_vertices.empty()) {
+    return Vec2{};
+  }
+
+  return *std::max_element(
+    world_vertices.begin(),
+    world_vertices.end(),
+    [direction](const Vec2& a, const Vec2& b) -> bool {
+      return a.Dot(direction) < b.Dot(direction);
+    }
+  );
 }
 
 BoxShape::BoxShape(float width, float height):
