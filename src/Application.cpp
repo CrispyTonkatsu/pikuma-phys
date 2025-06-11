@@ -41,7 +41,7 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<BoxShape>(200.f, 100.f),
+      std::make_unique<CircleShape>(100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
       0.f,
       1.f
@@ -96,23 +96,24 @@ void Application::Input() {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
 
-          bodies.emplace_back(
+          auto& new_body = bodies.emplace_back(
             std::make_unique<Body>(
-              std::make_unique<BoxShape>(60.f, 100.f),
+              std::make_unique<CircleShape>(100.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f,
               1.f
             )
           );
+          new_body->rotation = 45.f * (std::numbers::pi_v<float> / 180.f);
         }
         break;
-        // case SDL_MOUSEMOTION:
-        //   {
-        //     int x = 0, y = 0;
-        //     SDL_GetMouseState(&x, &y);
-        //     bodies[0]->position = Vec2(x, y);
-        //   }
-        //   break;
+      case SDL_MOUSEMOTION:
+        {
+          int x = 0, y = 0;
+          SDL_GetMouseState(&x, &y);
+          bodies[0]->position = Vec2(x, y);
+        }
+        break;
     }
   }
 }
@@ -239,6 +240,13 @@ void Application::Render() {
       contact.end.x,
       contact.end.y,
       0xFFFF00FF
+    );
+    Graphics::DrawLine(
+      contact.start.x,
+      contact.start.y,
+      contact.start.x + contact.normal.x * contact.depth,
+      contact.start.y + contact.normal.y * contact.depth,
+      0xFF00FFFF
     );
     // NOLINTEND
   }

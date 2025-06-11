@@ -1,6 +1,9 @@
 #ifndef VEC2_H
 #define VEC2_H
 
+#include <iostream>
+#include <ostream>
+
 struct Vec2 {
   float x;
   float y;
@@ -46,6 +49,10 @@ struct Vec2 {
   Vec2& operator-=(const Vec2& v); // v1 -= v2
   Vec2& operator*=(float n);       // v1 *= n
   Vec2& operator/=(float n);       // v1 /= n
+
+  friend std::ostream& operator<<(std::ostream& stream, Vec2 vec);
 };
+
+std::ostream& operator<<(std::ostream& stream, Vec2 vec);
 
 #endif

@@ -10,8 +10,6 @@ Contact::Contact(
 ):
     a(&a), b(&b), start(start), end(end), normal(normal), depth(depth) {}
 
-// TODO: Implement the functions for the contacts
-
 void Contact::ResolvePenetration() const {
   if (a->IsStatic() && b->IsStatic()) {
     return;
@@ -28,8 +26,15 @@ void Contact::ResolvePenetration() const {
 void Contact::ResolveCollision() const {
   ResolvePenetration();
 
-  const float restitution = std::min(a->restitution, b->restitution);
   const Vec2 relative_velocity = a->velocity - b->velocity;
+
+  // TODO: See how they dont need this in the tutorials
+  if (relative_velocity.Dot(normal) < 0.f) {
+    // NOTE: Preventing objects from getting stuck
+    return;
+  }
+
+  const float restitution = std::min(a->restitution, b->restitution);
 
   const float impulse_magniude =
     (-(1.f + restitution) * (relative_velocity.Dot(normal)))

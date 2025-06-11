@@ -119,3 +119,7 @@ Vec2 Vec2::operator-() const {
   return result;
 }
 
+std::ostream& operator<<(std::ostream& stream, Vec2 vec) {
+  stream << vec.x << ", " << vec.y;
+  return stream;
+}

@@ -60,29 +60,37 @@ std::optional<Contact> collision_detection::PolygonPolygonCollision(
   std::optional<DistanceQuery> ab_check =
     collision_detection::FindSeparation(ap, bp);
 
-  if (!ab_check.has_value() || ab_check.value().distance > 0.f) {
+  if (!ab_check.has_value() || ab_check->distance > 0.f) {
     return std::nullopt;
   }
 
   std::optional<DistanceQuery> ba_check =
     collision_detection::FindSeparation(bp, ap);
 
-  if (!ba_check.has_value() || ba_check.value().distance > 0.f) {
+  if (!ba_check.has_value() || ba_check->distance > 0.f) {
     return std::nullopt;
   }
 
-  DistanceQuery& to_use = ab_check->distance > ba_check->distance
-                          ? ab_check.value()
-                          : ba_check.value();
+  if (ab_check->distance > ba_check->distance) {
+    return std::make_optional<Contact>(
+      a,
+      b,
+      ab_check->start_point,
+      ab_check->end_point,
+      ab_check->normal,
+      -ab_check->distance
+    );
 
-  return std::make_optional<Contact>(
-    a,
-    b,
-    to_use.start_point,
-    to_use.end_point,
-    to_use.normal,
-    to_use.distance
-  );
+  } else {
+    return std::make_optional<Contact>(
+      b,
+      a,
+      ba_check->start_point,
+      ba_check->end_point,
+      ba_check->normal,
+      -ba_check->distance
+    );
+  }
 }
 
 std::optional<collision_detection::DistanceQuery> collision_detection::
@@ -92,42 +100,42 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
     return std::nullopt;
   }
 
-  float max_distance = -std::numeric_limits<float>::max();
+  float max_distance = std::numeric_limits<float>::lowest();
   Vec2 max_normal{};
   Vec2 max_support{};
-  std::size_t vertex_i = 0;
+  Vec2 max_support_projected{};
 
   for (std::size_t i = 0; i < a.world_vertices.size(); i++) {
     const Vec2 start = a.world_vertices[i];
     const Vec2 end = a.world_vertices[(i + 1) % a.world_vertices.size()];
 
-    const Vec2 line_v = end - start;
+    const Vec2 line_v = (end - start).UnitVector();
     const Vec2 normal = line_v.Normal();
-    const float line_c = normal.Dot(start);
 
     const Vec2 support = b.support_point(-normal);
-    const float side = normal.Dot(support) - line_c;
 
     const Vec2 to_support = support - start;
-    const Vec2 projection_v =
-      line_v.UnitVector() * line_v.UnitVector().Dot(to_support);
+    const Vec2 projection_v = line_v * line_v.Dot(to_support);
 
     const Vec2 projection_p = start + projection_v;
+
+    const bool side = (support - projection_p).Dot(normal) >= 0.f;
+
     const float distance =
-      (support - projection_p).Magnitude() * (side < 0 ? -1.f : 1.f);
+      (support - projection_p).Magnitude() * (side ? 1.f : -1.f);
 
     if (distance > max_distance) {
       max_distance = distance;
       max_normal = normal;
 
-      vertex_i = i;
       max_support = support;
+      max_support_projected = projection_p;
     }
   }
 
   return DistanceQuery{
     max_normal.UnitVector(),
-    a.world_vertices[vertex_i],
+    max_support_projected,
     max_support,
     max_distance
   };
