@@ -44,7 +44,7 @@ void Application::Setup() {
       std::make_unique<BoxShape>(Graphics::Width(), 100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
       0.f,
-      0.f
+      0.2f
     )
   );
 
@@ -109,7 +109,7 @@ void Application::Input() {
 
           auto& new_body = bodies.emplace_back(
             std::make_unique<Body>(
-              std::make_unique<BoxShape>(100.f, 100.f),
+              std::make_unique<BoxShape>(30.f, 30.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f,
               1.f
@@ -121,9 +121,7 @@ void Application::Input() {
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
-          // bodies[0]->velocity = (Vec2(x, y) - bodies[0]->position) * (30.f);
-          // bodies[0]->ClearForces();
-          // bodies[0]->ClearTorques();
+          // bodies[0]->position = Vec2(x, y);
         }
         break;
     }
@@ -156,12 +154,6 @@ void Application::Update() {
 
   for (auto& body: bodies) {
     body->AddForce(force::GenerateWeight(*body));
-    //
-    // body->AddTorque(200.f);
-    //
-    // if (IsInRect(*body, liquid)) {
-    //   body->AddForce(force::GenerateDragSimple(*body, 0.04));
-    // }
   }
 
   for (auto& body: bodies) {

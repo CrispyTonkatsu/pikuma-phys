@@ -17,7 +17,7 @@ void Contact::ResolvePenetration() const {
   }
 
   const auto equation = [&](float inv_mass) {
-    return (depth / (a->inv_mass + b->inv_mass)) * inv_mass;
+    return depth / (a->inv_mass + b->inv_mass) * inv_mass;
   };
 
   a->position -= normal * equation(a->inv_mass);
@@ -32,7 +32,12 @@ void Contact::ResolveCollision() const {
 
   const Vec2 va = a->velocity_at(end);
   const Vec2 vb = b->velocity_at(start);
+
   const Vec2 relative_velocity = va - vb;
+
+  if (relative_velocity.Dot(normal) < 0.f) {
+    return;
+  }
 
   const float restitution = std::min(a->restitution, b->restitution);
 
