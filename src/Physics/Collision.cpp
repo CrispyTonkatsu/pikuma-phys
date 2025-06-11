@@ -60,14 +60,14 @@ std::optional<Contact> collision_detection::PolygonPolygonCollision(
   std::optional<DistanceQuery> ab_check =
     collision_detection::FindSeparation(ap, bp);
 
-  if (!ab_check.has_value() || ab_check->distance > 0.f) {
+  if (!ab_check.has_value() || ab_check->distance >= 0.f) {
     return std::nullopt;
   }
 
   std::optional<DistanceQuery> ba_check =
     collision_detection::FindSeparation(bp, ap);
 
-  if (!ba_check.has_value() || ba_check->distance > 0.f) {
+  if (!ba_check.has_value() || ba_check->distance >= 0.f) {
     return std::nullopt;
   }
 
@@ -109,13 +109,14 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
     const Vec2 start = a.world_vertices[i];
     const Vec2 end = a.world_vertices[(i + 1) % a.world_vertices.size()];
 
-    const Vec2 line_v = (end - start).UnitVector();
+    const Vec2 line_v = end - start;
     const Vec2 normal = line_v.Normal();
 
     const Vec2 support = b.support_point(-normal);
 
     const Vec2 to_support = support - start;
-    const Vec2 projection_v = line_v * line_v.Dot(to_support);
+    const Vec2 projection_v =
+      line_v * (line_v.Dot(to_support) / line_v.MagnitudeSquared());
 
     const Vec2 projection_p = start + projection_v;
 
@@ -134,7 +135,7 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
   }
 
   return DistanceQuery{
-    max_normal.UnitVector(),
+    max_normal,
     max_support_projected,
     max_support,
     max_distance

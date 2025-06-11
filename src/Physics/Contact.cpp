@@ -1,4 +1,5 @@
 #include "Contact.h"
+#include "Vec2.h"
 
 Contact::Contact(
   Body& a,
@@ -26,22 +27,26 @@ void Contact::ResolvePenetration() const {
 void Contact::ResolveCollision() const {
   ResolvePenetration();
 
-  const Vec2 relative_velocity = a->velocity - b->velocity;
+  const Vec2 ra = end - a->position;
+  const Vec2 rb = start - b->position;
 
-  // TODO: See how they dont need this in the tutorials
-  if (relative_velocity.Dot(normal) < 0.f) {
-    // NOTE: Preventing objects from getting stuck
-    return;
-  }
+  const Vec2 va = a->velocity_at(end);
+  const Vec2 vb = b->velocity_at(start);
+  const Vec2 relative_velocity = va - vb;
 
   const float restitution = std::min(a->restitution, b->restitution);
 
-  const float impulse_magniude =
-    (-(1.f + restitution) * (relative_velocity.Dot(normal)))
-    / (a->inv_mass + b->inv_mass);
+  const float ra_x_n = ra.Cross(normal);
+  const float rb_x_n = rb.Cross(normal);
+
+  const float impulse_magniude = (-(1.f + restitution)
+                                  * (relative_velocity.Dot(normal)))
+                               / (a->inv_mass + b->inv_mass
+                                  + (ra_x_n * ra_x_n * a->inv_inertia)
+                                  + (rb_x_n * rb_x_n * b->inv_inertia));
 
   const Vec2 impulse = normal * impulse_magniude;
 
-  a->ApplyImpulse(impulse);
-  b->ApplyImpulse(-impulse);
+  a->ApplyImpulseAt(impulse, end);
+  b->ApplyImpulseAt(-impulse, start);
 }

@@ -41,12 +41,23 @@ void Application::Setup() {
 
   bodies.emplace_back(
     std::make_unique<Body>(
-      std::make_unique<CircleShape>(100.f),
-      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
+      std::make_unique<BoxShape>(Graphics::Width(), 100.f),
+      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
       0.f,
-      1.f
+      0.f
     )
   );
+
+  bodies
+    .emplace_back(
+      std::make_unique<Body>(
+        std::make_unique<BoxShape>(300.f, 100.f),
+        Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
+        0.f,
+        0.f
+      )
+    )
+    ->rotation = 30.f * (std::numbers::pi_v<float> / 180.f);
 
   liquid.x = 0;
   liquid.y = 0;
@@ -98,20 +109,21 @@ void Application::Input() {
 
           auto& new_body = bodies.emplace_back(
             std::make_unique<Body>(
-              std::make_unique<CircleShape>(100.f),
+              std::make_unique<BoxShape>(100.f, 100.f),
               Vec2(static_cast<float>(x), static_cast<float>(y)),
               1.f,
               1.f
             )
           );
-          new_body->rotation = 45.f * (std::numbers::pi_v<float> / 180.f);
         }
         break;
       case SDL_MOUSEMOTION:
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
-          bodies[0]->position = Vec2(x, y);
+          // bodies[0]->velocity = (Vec2(x, y) - bodies[0]->position) * (30.f);
+          // bodies[0]->ClearForces();
+          // bodies[0]->ClearTorques();
         }
         break;
     }
@@ -135,7 +147,7 @@ void Application::Update() {
   float delta_time =
     static_cast<float>(SDL_GetTicks() - time_prev_frame) / 1000;
 
-  // Clamping the delta time so that debugging is ok
+  // Clamping the delta time so that debugging is or
   delta_time = std::clamp(delta_time, 0.f, MAX_DELTA_TIME);
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
@@ -223,11 +235,7 @@ void Application::Render() {
       continue;
     }
 
-    body->shape->DebugRender(
-      body->position,
-      body->rotation,
-      body->isColliding ? 0xFF0000FF : 0xFFFFFFFF
-    );
+    body->shape->DebugRender(body->position, body->rotation, 0xFFFFFFFF);
   }
 
   for (auto& contact: contacts) {
@@ -242,10 +250,10 @@ void Application::Render() {
       0xFFFF00FF
     );
     Graphics::DrawLine(
-      contact.start.x,
-      contact.start.y,
-      contact.start.x + contact.normal.x * contact.depth,
-      contact.start.y + contact.normal.y * contact.depth,
+      contact.end.x,
+      contact.end.y,
+      contact.end.x + contact.normal.x * contact.depth,
+      contact.end.y + contact.normal.y * contact.depth,
       0xFF00FFFF
     );
     // NOLINTEND

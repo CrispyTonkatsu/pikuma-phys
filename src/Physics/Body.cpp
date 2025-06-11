@@ -1,4 +1,5 @@
 #include "Constants.h"
+#include "Vec2.h"
 #include "Body.h"
 
 Body::Body(
@@ -58,8 +59,26 @@ void Body::ApplyImpulse(Vec2 impulse) {
   velocity += impulse * inv_mass;
 }
 
+void Body::ApplyImpulseAt(Vec2 impulse, Vec2 location) {
+  if (IsStatic()) {
+    return;
+  }
+
+  Vec2 r = location - position;
+
+  velocity += impulse * inv_mass;
+  angular_velocity += r.Cross(impulse) * inv_inertia;
+}
+
 void Body::ClearForces() { net_force = Vec2(0.f, 0.f); }
 
 void Body::ClearTorques() { net_torque = 0.f; }
 
 bool Body::IsStatic() const { return std::abs(inv_mass - 0.0f) < EPSILON; }
+
+Vec2 Body::velocity_at(Vec2 location) const {
+  Vec2 to_location = location - position;
+  // NOTE: This is going to do the cross product of the vector in 2D for the
+  // angular components
+  return velocity + (Vec2(-to_location.y, to_location.x) * angular_velocity);
+}

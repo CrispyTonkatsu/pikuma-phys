@@ -34,7 +34,12 @@ public:
 
   float restitution{0.f};
 
-  Body(std::unique_ptr<Shape> shape, Vec2 position, float mass, float restitution);
+  Body(
+    std::unique_ptr<Shape> shape,
+    Vec2 position,
+    float mass,
+    float restitution
+  );
   ~Body() = default;
 
   Body(const Body&) = delete;
@@ -68,6 +73,8 @@ public:
 
   void ApplyImpulse(Vec2 impulse);
 
+  void ApplyImpulseAt(Vec2 impulse, Vec2 location);
+
   /**
    * @brief This will clear all forces (it should only be used once per frame,
    * right after integration)
@@ -77,6 +84,8 @@ public:
   void ClearTorques();
 
   [[nodiscard]] bool IsStatic() const;
+
+  [[nodiscard]] Vec2 velocity_at(Vec2 location) const;
 };
 
 #endif
