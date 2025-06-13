@@ -1,6 +1,5 @@
 #include "Application.h"
 #include <algorithm>
-#include <cstddef>
 #include <memory>
 #include "Graphics.h"
 #include "Physics/Collision.h"
@@ -39,38 +38,38 @@ bool Application::IsRunning() const { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  bodies.emplace_back(
-    std::make_unique<Body>(
-      std::make_unique<BoxShape>(Graphics::Width(), 100.f),
-      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
-      0.f
-    )
-  );
-
-  bodies.emplace_back(
-    std::make_unique<Body>(
-      std::make_unique<BoxShape>(
-        Graphics::Width() * 0.1f,
-        Graphics::Height() * 0.7f
-      ),
-      Vec2(Graphics::Width<float>() * 0.01f, Graphics::Height<float>() * 0.5f),
-      0.f
-    )
-  );
-
-  bodies.emplace_back(
-    std::make_unique<Body>(
-      std::make_unique<BoxShape>(
-        Graphics::Width() * 0.1f,
-        Graphics::Height() * 0.7f
-      ),
-      Vec2(
-        Graphics::Width<float>() * (1 - 0.01f),
-        Graphics::Height<float>() * 0.5f
-      ),
-      0.f
-    )
-  );
+  // bodies.emplace_back(
+  //   std::make_unique<Body>(
+  //     std::make_unique<BoxShape>(Graphics::Width(), 100.f),
+  //     Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() *
+  //     0.9f), 0.f
+  //   )
+  // );
+  //
+  // bodies.emplace_back(
+  //   std::make_unique<Body>(
+  //     std::make_unique<BoxShape>(
+  //       Graphics::Width() * 0.1f,
+  //       Graphics::Height() * 0.7f
+  //     ),
+  //     Vec2(Graphics::Width<float>() * 0.01f, Graphics::Height<float>() *
+  //     0.5f), 0.f
+  //   )
+  // );
+  //
+  // bodies.emplace_back(
+  //   std::make_unique<Body>(
+  //     std::make_unique<BoxShape>(
+  //       Graphics::Width() * 0.1f,
+  //       Graphics::Height() * 0.7f
+  //     ),
+  //     Vec2(
+  //       Graphics::Width<float>() * (1 - 0.01f),
+  //       Graphics::Height<float>() * 0.5f
+  //     ),
+  //     0.f
+  //   )
+  // );
 
   bodies
     .emplace_back(
@@ -162,7 +161,7 @@ void Application::Input() {
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
-          // bodies[0]->position = Vec2(x, y);
+          bodies[0]->position = Vec2(x, y);
         }
         break;
     }
@@ -194,7 +193,7 @@ void Application::Update() {
   contacts.clear();
 
   for (auto& body: bodies) {
-    body->AddForce(force::GenerateWeight(*body));
+    // body->AddForce(force::GenerateWeight(*body));
   }
 
   for (auto& body: bodies) {
@@ -217,7 +216,7 @@ void Application::Update() {
   }
 
   for (auto& contact: contacts) {
-    contact.ResolveCollision();
+    // contact.ResolveCollision();
   }
 }
 

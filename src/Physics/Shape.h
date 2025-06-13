@@ -28,7 +28,6 @@ struct Shape {
 
   [[nodiscard]] virtual ShapeType GetType() const = 0;
 
-  // TODO: Actually implement this
   [[nodiscard]] virtual float GetMomentOfInertia(float) const { return 0.f; }
 
   virtual void DebugRender(
@@ -56,6 +55,10 @@ struct CircleShape : public Shape {
   [[nodiscard]] float GetMomentOfInertia(float mass) const override;
 
   void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
+
+  [[nodiscard]] Vec2 support_point(Vec2 position, Vec2 direction) const {
+    return position + (direction * radius);
+  }
 };
 
 struct PolygonShape : public Shape {
