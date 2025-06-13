@@ -1,7 +1,5 @@
 #include "Contact.h"
 #include <algorithm>
-#include <iostream>
-#include <ostream>
 #include "Vec2.h"
 
 Contact::Contact(
@@ -38,10 +36,6 @@ void Contact::ResolveCollision() const {
 
   const Vec2 relative_velocity = va - vb;
 
-  if (relative_velocity.Dot(normal) < 0.f) {
-    return;
-  }
-
   const float restitution = std::min(a->restitution, b->restitution);
 
   const float ra_x_n = ra.Cross(normal);
@@ -54,9 +48,6 @@ void Contact::ResolveCollision() const {
                                   + (rb_x_n * rb_x_n * b->inv_inertia));
 
   const Vec2 impulse = normal * impulse_magniude;
-
-  a->ApplyImpulseAt(impulse, end);
-  b->ApplyImpulseAt(-impulse, start);
 
   // Tangential impulse
 
@@ -75,6 +66,16 @@ void Contact::ResolveCollision() const {
 
   const Vec2 tangent_impulse = tangent * tangent_impulse_magniude;
 
-  a->ApplyImpulseAt(tangent_impulse, end);
-  b->ApplyImpulseAt(-tangent_impulse, start);
+  const Vec2 net_impulse = impulse + tangent_impulse;
+
+  if (impulse.Dot(normal) > 0.f) {
+    return;
+  }
+
+  if (tangent_impulse.Dot(relative_velocity) > 0.f) {
+    return;
+  }
+
+  a->ApplyImpulseAt(net_impulse, end);
+  b->ApplyImpulseAt(-net_impulse, start);
 }

@@ -40,4 +40,19 @@ add_executable(engine
 target_link_libraries(engine OpenGL SDL2 SDL2_image SDL2_gfx)
 include_directories(engine ${GLEW_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
 
+add_executable(sample 
+./sample/src/Main.cpp 
+./sample/src/Graphics.cpp
+./sample/src/Application.cpp
+./sample/src/Physics/Vec2.cpp
+./sample/src/Physics/Body.cpp
+./sample/src/Physics/Force.cpp
+./sample/src/Physics/Shape.cpp
+./sample/src/Physics/CollisionDetection.cpp
+./sample/src/Physics/Contact.cpp
+)
+
+target_link_libraries(sample OpenGL SDL2 SDL2_image SDL2_gfx)
+include_directories(sample ${GLEW_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS})
+
 # vim:shiftwidth=2:

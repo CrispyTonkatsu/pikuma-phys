@@ -43,9 +43,7 @@ void Application::Setup() {
     std::make_unique<Body>(
       std::make_unique<BoxShape>(Graphics::Width(), 100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
-      0.f,
-      0.3f,
-      0.3f
+      0.f
     )
   );
 
@@ -56,9 +54,7 @@ void Application::Setup() {
         Graphics::Height() * 0.7f
       ),
       Vec2(Graphics::Width<float>() * 0.01f, Graphics::Height<float>() * 0.5f),
-      0.f,
-      0.1f,
-      1.f
+      0.f
     )
   );
 
@@ -72,23 +68,19 @@ void Application::Setup() {
         Graphics::Width<float>() * (1 - 0.01f),
         Graphics::Height<float>() * 0.5f
       ),
-      0.f,
-      0.1f,
-      1.f
+      0.f
     )
   );
 
   bodies
     .emplace_back(
       std::make_unique<Body>(
-        std::make_unique<CircleShape>(200.f),
+        std::make_unique<BoxShape>(200.f, 100.f),
         Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-        0.f,
-        0.3f,
-        1.f
+        0.f
       )
     )
-    ->rotation = 30.f * (std::numbers::pi_v<float> / 180.f);
+    ->rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
 
   liquid.x = 0;
   liquid.y = 0;
@@ -142,24 +134,24 @@ void Application::Input() {
           SDL_GetMouseState(&x, &y);
 
           if (left) {
-            auto& new_body = bodies.emplace_back(
+            bodies.emplace_back(
               std::make_unique<Body>(
                 std::make_unique<BoxShape>(50.f, 50.f),
                 Vec2(static_cast<float>(x), static_cast<float>(y)),
                 1.f,
-                1.f,
+                0.f,
                 1.f
               )
             );
           }
 
           if (right) {
-            auto& new_body = bodies.emplace_back(
+            bodies.emplace_back(
               std::make_unique<Body>(
                 std::make_unique<CircleShape>(25.f),
                 Vec2(static_cast<float>(x), static_cast<float>(y)),
                 1.f,
-                1.f,
+                0.f,
                 1.f
               )
             );
@@ -226,37 +218,6 @@ void Application::Update() {
 
   for (auto& contact: contacts) {
     contact.ResolveCollision();
-  }
-
-  // NOTE: remove this when circle circle is here
-  for (auto& body: bodies) {
-    auto* circle_opt = body->shape->as<CircleShape>();
-    if (circle_opt == nullptr) {
-      continue;
-    }
-
-    auto& circle = *circle_opt;
-
-    const Vec2 screen_start = Vec2(circle.radius, circle.radius);
-
-    const Vec2 screen_end = Vec2(
-      static_cast<float>(Graphics::Width()) - circle.radius,
-      static_cast<float>(Graphics::Height()) - circle.radius
-    );
-
-    if (body->position.x > screen_end.x || body->position.x < screen_start.x) {
-      body->position.x =
-        std::clamp(body->position.x, screen_start.x, screen_end.x);
-
-      body->velocity.x *= -1.f;
-    }
-
-    if (body->position.y > screen_end.y || body->position.y < screen_start.y) {
-      body->position.y =
-        std::clamp(body->position.y, screen_start.y, screen_end.y);
-
-      body->velocity.y *= -1.f;
-    }
   }
 }
 

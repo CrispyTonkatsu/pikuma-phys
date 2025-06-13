@@ -13,6 +13,14 @@
 			"dependsOn": [
 				"Build (Debug)"
 			]
+		},
+		{
+			"label": "Run Sample (Debug)",
+			"type": "shell",
+			"command": "./build/debug/sample",
+			"dependsOn": [
+				"Build (Debug)"
+			]
 		}
 	]
 }

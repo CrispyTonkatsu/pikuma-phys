@@ -39,8 +39,8 @@ public:
     std::unique_ptr<Shape> shape,
     Vec2 position,
     float mass,
-    float restitution = 1.f,
-    float friction = 0.f
+    float restitution = 0.f,
+    float friction = 1.f
   );
   ~Body() = default;
 
