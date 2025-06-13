@@ -2,8 +2,10 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdlib>
+#include <iostream>
 #include <limits>
 #include <optional>
+#include <ostream>
 #include "Body.h"
 #include "Contact.h"
 #include "Shape.h"

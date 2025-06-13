@@ -1,4 +1,7 @@
 #include "Contact.h"
+#include <algorithm>
+#include <iostream>
+#include <ostream>
 #include "Vec2.h"
 
 Contact::Contact(
@@ -54,4 +57,24 @@ void Contact::ResolveCollision() const {
 
   a->ApplyImpulseAt(impulse, end);
   b->ApplyImpulseAt(-impulse, start);
+
+  // Tangential impulse
+
+  const Vec2 tangent = normal.Normal();
+
+  const float friction = std::min(a->friction, b->friction);
+
+  const float ra_x_t = ra.Cross(tangent);
+  const float rb_x_t = rb.Cross(tangent);
+
+  const float tangent_impulse_magniude = (friction * -(1.f + restitution)
+                                          * (relative_velocity.Dot(tangent)))
+                                       / (a->inv_mass + b->inv_mass
+                                          + (ra_x_t * ra_x_t * a->inv_inertia)
+                                          + (rb_x_t * rb_x_t * b->inv_inertia));
+
+  const Vec2 tangent_impulse = tangent * tangent_impulse_magniude;
+
+  a->ApplyImpulseAt(tangent_impulse, end);
+  b->ApplyImpulseAt(-tangent_impulse, start);
 }

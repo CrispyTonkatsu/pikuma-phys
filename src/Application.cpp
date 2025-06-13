@@ -44,17 +44,48 @@ void Application::Setup() {
       std::make_unique<BoxShape>(Graphics::Width(), 100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
       0.f,
-      0.2f
+      0.3f,
+      0.3f
+    )
+  );
+
+  bodies.emplace_back(
+    std::make_unique<Body>(
+      std::make_unique<BoxShape>(
+        Graphics::Width() * 0.1f,
+        Graphics::Height() * 0.7f
+      ),
+      Vec2(Graphics::Width<float>() * 0.01f, Graphics::Height<float>() * 0.5f),
+      0.f,
+      0.1f,
+      1.f
+    )
+  );
+
+  bodies.emplace_back(
+    std::make_unique<Body>(
+      std::make_unique<BoxShape>(
+        Graphics::Width() * 0.1f,
+        Graphics::Height() * 0.7f
+      ),
+      Vec2(
+        Graphics::Width<float>() * (1 - 0.01f),
+        Graphics::Height<float>() * 0.5f
+      ),
+      0.f,
+      0.1f,
+      1.f
     )
   );
 
   bodies
     .emplace_back(
       std::make_unique<Body>(
-        std::make_unique<BoxShape>(300.f, 100.f),
+        std::make_unique<CircleShape>(200.f),
         Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
         0.f,
-        0.f
+        0.3f,
+        1.f
       )
     )
     ->rotation = 30.f * (std::numbers::pi_v<float> / 180.f);
@@ -104,17 +135,35 @@ void Application::Input() {
         break;
       case SDL_MOUSEBUTTONDOWN:
         {
+          bool left = (event.button.button == SDL_BUTTON_LEFT);
+          bool right(event.button.button == SDL_BUTTON_RIGHT);
+
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
 
-          auto& new_body = bodies.emplace_back(
-            std::make_unique<Body>(
-              std::make_unique<BoxShape>(30.f, 30.f),
-              Vec2(static_cast<float>(x), static_cast<float>(y)),
-              1.f,
-              1.f
-            )
-          );
+          if (left) {
+            auto& new_body = bodies.emplace_back(
+              std::make_unique<Body>(
+                std::make_unique<BoxShape>(50.f, 50.f),
+                Vec2(static_cast<float>(x), static_cast<float>(y)),
+                1.f,
+                1.f,
+                1.f
+              )
+            );
+          }
+
+          if (right) {
+            auto& new_body = bodies.emplace_back(
+              std::make_unique<Body>(
+                std::make_unique<CircleShape>(25.f),
+                Vec2(static_cast<float>(x), static_cast<float>(y)),
+                1.f,
+                1.f,
+                1.f
+              )
+            );
+          }
         }
         break;
       case SDL_MOUSEMOTION:
@@ -179,8 +228,7 @@ void Application::Update() {
     contact.ResolveCollision();
   }
 
-  // TODO: refactor into something that can be used generically for all body
-  // types
+  // NOTE: remove this when circle circle is here
   for (auto& body: bodies) {
     auto* circle_opt = body->shape->as<CircleShape>();
     if (circle_opt == nullptr) {

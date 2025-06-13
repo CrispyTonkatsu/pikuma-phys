@@ -33,12 +33,14 @@ public:
   float inv_inertia{1.f};
 
   float restitution{0.f};
+  float friction{0.f};
 
   Body(
     std::unique_ptr<Shape> shape,
     Vec2 position,
     float mass,
-    float restitution
+    float restitution = 1.f,
+    float friction = 0.f
   );
   ~Body() = default;
 

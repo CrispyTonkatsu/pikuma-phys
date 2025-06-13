@@ -6,7 +6,8 @@ Body::Body(
   std::unique_ptr<Shape> shape,
   Vec2 position,
   float mass,
-  float restitution
+  float restitution,
+  float friction
 ):
     position(position),
     shape(std::move(shape)),
@@ -14,7 +15,8 @@ Body::Body(
     inv_mass((mass != 0.f) ? (1.f / mass) : 0.f),
     inertia(this->shape->GetMomentOfInertia(mass)),
     inv_inertia((inertia != 0.f) ? (1.f / inertia) : 0.f),
-    restitution(restitution) {}
+    restitution(restitution),
+    friction(friction) {}
 
 void Body::Update(float dt) {
   if (shape->GetType() == ShapeType::BOX
