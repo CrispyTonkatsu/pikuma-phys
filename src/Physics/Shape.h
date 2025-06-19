@@ -1,6 +1,7 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 
+#include <utility>
 #include <vector>
 #include "SDL_stdinc.h"
 #include "Vec2.h"
@@ -80,9 +81,13 @@ struct PolygonShape : public Shape {
 
   void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
 
+  [[nodiscard]] std::pair<Vec2, Vec2> get_edge(size_t i) const;
+
   [[nodiscard]] bool IsPoly() const override;
 
   [[nodiscard]] Vec2 support_point(Vec2 direction) const;
+
+  [[nodiscard]] std::pair<Vec2, Vec2> support_edge(Vec2 direction) const;
 };
 
 struct BoxShape : public PolygonShape {

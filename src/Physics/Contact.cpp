@@ -68,7 +68,8 @@ void Contact::ResolveCollision() const {
 
   const Vec2 net_impulse = impulse + tangent_impulse;
 
-  // NOTE: Try to make this not necessary (watch it be like 1 thing in the engine)
+  // NOTE: Try to make this not necessary (watch it be like 1 thing in the
+  // engine)
   if (net_impulse.Dot(normal) > 0.f) {
     return;
   }

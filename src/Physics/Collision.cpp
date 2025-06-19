@@ -2,10 +2,8 @@
 #include <cctype>
 #include <cstddef>
 #include <cstdlib>
-#include <iostream>
 #include <limits>
 #include <optional>
-#include <ostream>
 #include "Body.h"
 #include "Contact.h"
 #include "Shape.h"
@@ -110,37 +108,40 @@ std::optional<Contact> collision_detection::PolygonCircleCollision(
   PolygonShape& ap = *a.shape->as<PolygonShape>();
   CircleShape& bp = *b.shape->as<CircleShape>();
 
-  // TODO: Left off here, figuring out how to pick the normal
+  const Vec2 to_circle = b.position - a.position;
 
-  std::optional<DistanceQuery> ab_check =
-    collision_detection::FindSeparation(ap, bp, b.position);
+  const auto [start, end] = ap.support_edge(to_circle);
+  const Vec2 line_v = end - start;
 
-  if (!ab_check.has_value() || ab_check->distance >= 0.f) {
+  const Vec2 projected_v =
+    (line_v * (line_v.Dot(b.position - start) / line_v.MagnitudeSquared()));
+
+  Vec2 projected_p = start + projected_v;
+
+  if ((b.position - start).Dot(line_v) < 0.f) {
+    projected_p = start;
+  }
+
+  if ((b.position - end).Dot(line_v) > 0.f) {
+    projected_p = end;
+  }
+
+  const Vec2 to_projected = projected_p - b.position;
+  const float depth = to_projected.Magnitude() - bp.radius;
+
+  if (depth >= 0.f) {
     return std::nullopt;
   }
 
-  std::optional<DistanceQuery> ba_check =
-    collision_detection::FindSeparation(bp, b.position, ap, a.position);
-
-  if (ba_check.has_value() && ba_check->distance < 0.f
-      && ba_check->distance > ab_check->distance) {
-    return std::make_optional<Contact>(
-      b,
-      a,
-      ba_check->start_point,
-      ba_check->end_point,
-      ba_check->normal,
-      -ba_check->distance
-    );
-  }
+  const Vec2 normal = to_projected.UnitVector();
 
   return std::make_optional<Contact>(
     a,
     b,
-    ab_check->start_point,
-    ab_check->end_point,
-    ab_check->normal,
-    -ab_check->distance
+    projected_p,
+    b.position - (normal * depth),
+    normal,
+    depth
   );
 }
 
@@ -157,8 +158,7 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
   Vec2 max_support_projected{};
 
   for (std::size_t i = 0; i < a.world_vertices.size(); i++) {
-    const Vec2 start = a.world_vertices[i];
-    const Vec2 end = a.world_vertices[(i + 1) % a.world_vertices.size()];
+    const auto [start, end] = a.get_edge(i);
 
     const Vec2 line_v = end - start;
     const Vec2 normal = line_v.Normal();
@@ -190,82 +190,5 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
     max_support_projected,
     max_support,
     max_distance
-  };
-}
-
-// NOTE: if the collider has the position somehow, then this could be merged
-// with the function above
-std::optional<collision_detection::DistanceQuery> collision_detection::
-  FindSeparation(PolygonShape& a, CircleShape& b, Vec2 circle_position) {
-
-  if (a.local_vertices.empty()) {
-    return std::nullopt;
-  }
-
-  float max_distance = std::numeric_limits<float>::lowest();
-  Vec2 max_normal{};
-  Vec2 max_support{};
-  Vec2 max_support_projected{};
-
-  for (std::size_t i = 0; i < a.world_vertices.size(); i++) {
-    const Vec2 start = a.world_vertices[i];
-    const Vec2 end = a.world_vertices[(i + 1) % a.world_vertices.size()];
-
-    const Vec2 line_v = end - start;
-    const Vec2 normal = line_v.Normal();
-
-    const Vec2 support = b.support_point(circle_position, -normal);
-
-    const Vec2 to_support = support - start;
-    const Vec2 projection_v =
-      line_v * (line_v.Dot(to_support) / line_v.MagnitudeSquared());
-
-    const Vec2 projection_p = start + projection_v;
-
-    const bool side = (support - projection_p).Dot(normal) >= 0.f;
-
-    const float distance =
-      (support - projection_p).Magnitude() * (side ? 1.f : -1.f);
-
-    if (distance > max_distance) {
-      max_distance = distance;
-      max_normal = normal;
-
-      max_support = support;
-      max_support_projected = projection_p;
-    }
-  }
-
-  return DistanceQuery{
-    max_normal,
-    max_support_projected,
-    max_support,
-    max_distance
-  };
-}
-
-std::optional<collision_detection::DistanceQuery> collision_detection::
-  FindSeparation(
-    CircleShape& a,
-    Vec2 circle_position,
-    PolygonShape& b,
-    Vec2 poly_position
-  ) {
-  const Vec2 to_circle = circle_position - poly_position;
-  const Vec2 support = b.support_point(to_circle);
-
-  const Vec2 support_to_circle = circle_position - support;
-
-  const float depth = support_to_circle.Magnitude() - a.radius;
-
-  if (depth > 0.f) {
-    return std::nullopt;
-  }
-
-  return DistanceQuery{
-    -to_circle.UnitVector(),
-    support,
-    support - (to_circle.UnitVector() * depth),
-    depth
   };
 }

@@ -22,7 +22,6 @@ namespace collision_detection {
     Body& b
   );
 
-
   struct DistanceQuery {
     Vec2 normal;
     Vec2 start_point;
@@ -33,19 +32,6 @@ namespace collision_detection {
   [[nodiscard]] std::optional<DistanceQuery> FindSeparation(
     PolygonShape& a,
     PolygonShape& b
-  );
-
-  [[nodiscard]] std::optional<DistanceQuery> FindSeparation(
-    PolygonShape& a,
-    CircleShape& b,
-    Vec2 circle_position
-  );
-
-  [[nodiscard]] std::optional<DistanceQuery> FindSeparation(
-    CircleShape& a,
-    Vec2 circle_position,
-    PolygonShape& b,
-    Vec2 poly_position
   );
 }
 

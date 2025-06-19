@@ -3,6 +3,7 @@
 #include <cmath>
 #include <numeric>
 #include "../Graphics.h"
+#include "Vec2.h"
 
 bool Shape::IsPoly() const { return false; }
 
@@ -64,6 +65,13 @@ void PolygonShape::DebugRender(Vec2 position, float, Uint32 color) const {
   Graphics::DrawPolygon(position.x, position.y, world_vertices, color);
 }
 
+std::pair<Vec2, Vec2> PolygonShape::get_edge(size_t i) const {
+  return std::make_pair(
+    world_vertices[i],
+    world_vertices[(i + 1) % world_vertices.size()]
+  );
+}
+
 bool PolygonShape::IsPoly() const { return true; }
 
 Vec2 PolygonShape::support_point(Vec2 direction) const {
@@ -78,6 +86,24 @@ Vec2 PolygonShape::support_point(Vec2 direction) const {
       return a.Dot(direction) < b.Dot(direction);
     }
   );
+}
+
+std::pair<Vec2, Vec2> PolygonShape::support_edge(Vec2 direction) const {
+  float max_dot = 0.f;
+  size_t index = 0;
+
+  for (size_t i = 0; i < world_vertices.size(); i++) {
+    const auto [start, end] = get_edge(i);
+    const Vec2 normal = (end - start).Normal();
+
+    const float dot = direction.Dot(normal);
+    if (dot > max_dot) {
+      index = i;
+      max_dot = dot;
+    }
+  }
+
+  return get_edge(index);
 }
 
 BoxShape::BoxShape(float width, float height):

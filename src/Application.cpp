@@ -70,16 +70,24 @@ void Application::Setup() {
   //     0.f
   //   )
   // );
+  //
+  // bodies
+  //   .emplace_back(
+  //     std::make_unique<Body>(
+  //       std::make_unique<BoxShape>(200.f, 100.f),
+  //       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
+  //       0.f
+  //     )
+  //   )
+  //   ->rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
 
-  bodies
-    .emplace_back(
-      std::make_unique<Body>(
-        std::make_unique<BoxShape>(200.f, 100.f),
-        Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-        0.f
-      )
+  bodies.emplace_back(
+    std::make_unique<Body>(
+      std::make_unique<BoxShape>(100.f, 100.f),
+      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
+      0.f
     )
-    ->rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
+  );
 
   liquid.x = 0;
   liquid.y = 0;
@@ -216,7 +224,7 @@ void Application::Update() {
   }
 
   for (auto& contact: contacts) {
-    // contact.ResolveCollision();
+    contact.ResolveCollision();
   }
 }
 
