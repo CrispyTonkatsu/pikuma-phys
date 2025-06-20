@@ -1,6 +1,7 @@
 #include "Shape.h"
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include "../Graphics.h"
 #include "Vec2.h"
@@ -86,24 +87,6 @@ Vec2 PolygonShape::support_point(Vec2 direction) const {
       return a.Dot(direction) < b.Dot(direction);
     }
   );
-}
-
-std::pair<Vec2, Vec2> PolygonShape::support_edge(Vec2 direction) const {
-  float max_dot = 0.f;
-  size_t index = 0;
-
-  for (size_t i = 0; i < world_vertices.size(); i++) {
-    const auto [start, end] = get_edge(i);
-    const Vec2 normal = (end - start).Normal();
-
-    const float dot = direction.Dot(normal);
-    if (dot > max_dot) {
-      index = i;
-      max_dot = dot;
-    }
-  }
-
-  return get_edge(index);
 }
 
 BoxShape::BoxShape(float width, float height):

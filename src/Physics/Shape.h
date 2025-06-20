@@ -86,8 +86,6 @@ struct PolygonShape : public Shape {
   [[nodiscard]] bool IsPoly() const override;
 
   [[nodiscard]] Vec2 support_point(Vec2 direction) const;
-
-  [[nodiscard]] std::pair<Vec2, Vec2> support_edge(Vec2 direction) const;
 };
 
 struct BoxShape : public PolygonShape {

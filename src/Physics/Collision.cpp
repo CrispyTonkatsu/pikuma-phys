@@ -1,5 +1,6 @@
 #include "Collision.h"
 #include <cctype>
+#include <complex>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
@@ -106,42 +107,65 @@ std::optional<Contact> collision_detection::PolygonCircleCollision(
   Body& b
 ) {
   PolygonShape& ap = *a.shape->as<PolygonShape>();
-  CircleShape& bp = *b.shape->as<CircleShape>();
+  CircleShape& bc = *b.shape->as<CircleShape>();
 
-  const Vec2 to_circle = b.position - a.position;
+  // NOTE: Possibly optimizable by not checking all edges using the support
+  // point and getting the planes from there
 
-  const auto [start, end] = ap.support_edge(to_circle);
-  const Vec2 line_v = end - start;
+  float min_distance = std::numeric_limits<float>::max();
+  Vec2 min_normal{};
+  Vec2 min_projected{};
+  bool inside{false};
 
-  const Vec2 projected_v =
-    (line_v * (line_v.Dot(b.position - start) / line_v.MagnitudeSquared()));
+  for (size_t i = 0; i < ap.world_vertices.size(); i++) {
+    const auto [start, end] = ap.get_edge(i);
+    const Vec2 line_v = end - start;
 
-  Vec2 projected_p = start + projected_v;
+    Vec2 projected_p{};
+    bool current_inside{false};
 
-  if ((b.position - start).Dot(line_v) < 0.f) {
-    projected_p = start;
+    if ((b.position - start).Dot(line_v) < 0.f) {
+      projected_p = start;
+
+    } else if ((b.position - end).Dot(line_v) > 0.f) {
+      projected_p = end;
+
+    } else {
+      const Vec2 projected_v =
+        (line_v * (line_v.Dot(b.position - start) / line_v.MagnitudeSquared()));
+      projected_p = start + projected_v;
+
+      const Vec2 normal = line_v.Normal();
+      current_inside = normal.Dot(b.position - projected_p) <= 0.f;
+    }
+
+    const float distance = (b.position - projected_p).Magnitude();
+
+    if (distance < min_distance) {
+      min_projected = projected_p;
+      min_normal = (projected_p - b.position).UnitVector();
+      min_distance = distance;
+      inside = current_inside;
+    }
   }
 
-  if ((b.position - end).Dot(line_v) > 0.f) {
-    projected_p = end;
-  }
+  min_distance = min_distance - bc.radius;
 
-  const Vec2 to_projected = projected_p - b.position;
-  const float depth = to_projected.Magnitude() - bp.radius;
-
-  if (depth >= 0.f) {
+  if (not inside && min_distance >= 0.f) {
     return std::nullopt;
   }
 
-  const Vec2 normal = to_projected.UnitVector();
+  if (inside) {
+    min_distance = (2.f * bc.radius) + -min_distance;
+  }
 
   return std::make_optional<Contact>(
     a,
     b,
-    projected_p,
-    b.position - (normal * depth),
-    normal,
-    depth
+    min_projected,
+    b.position + (min_normal * -min_distance),
+    -min_normal,
+    -min_distance
   );
 }
 
@@ -173,6 +197,10 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
 
     const bool side = (support - projection_p).Dot(normal) >= 0.f;
 
+    // BUG: This is not accounting for the distance to the line, instead it is
+    // to the plane which means that we get distances that are not valid
+    // This was fixed for the circles because there is only one set of axes to
+    // check
     const float distance =
       (support - projection_p).Magnitude() * (side ? 1.f : -1.f);
 
