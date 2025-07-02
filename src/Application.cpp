@@ -76,7 +76,8 @@ void Application::Setup() {
       std::make_unique<Body>(
         std::make_unique<BoxShape>(200.f, 100.f),
         Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-        0.f
+        0.f,
+        0.2f
       )
     )
     ->rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
@@ -138,8 +139,8 @@ void Application::Input() {
                 std::make_unique<BoxShape>(50.f, 50.f),
                 Vec2(static_cast<float>(x), static_cast<float>(y)),
                 1.f,
-                0.f,
-                1.f
+                0.8f,
+                0.9f
               )
             );
           }
@@ -150,8 +151,8 @@ void Application::Input() {
                 std::make_unique<CircleShape>(25.f),
                 Vec2(static_cast<float>(x), static_cast<float>(y)),
                 1.f,
-                0.f,
-                1.f
+                0.8f,
+                0.9f
               )
             );
           }
