@@ -134,27 +134,31 @@ void Application::Input() {
           SDL_GetMouseState(&x, &y);
 
           if (left) {
-            bodies.emplace_back(
-              std::make_unique<Body>(
-                std::make_unique<BoxShape>(50.f, 50.f),
-                Vec2(static_cast<float>(x), static_cast<float>(y)),
-                1.f,
-                0.8f,
-                0.9f
+            bodies
+              .emplace_back(
+                std::make_unique<Body>(
+                  std::make_unique<BoxShape>(50.f, 50.f),
+                  Vec2(static_cast<float>(x), static_cast<float>(y)),
+                  1.f,
+                  0.8f,
+                  0.9f
+                )
               )
-            );
+              ->SetTexture("./assets/crate.png");
           }
 
           if (right) {
-            bodies.emplace_back(
-              std::make_unique<Body>(
-                std::make_unique<CircleShape>(25.f),
-                Vec2(static_cast<float>(x), static_cast<float>(y)),
-                1.f,
-                0.8f,
-                0.9f
+            bodies
+              .emplace_back(
+                std::make_unique<Body>(
+                  std::make_unique<CircleShape>(25.f),
+                  Vec2(static_cast<float>(x), static_cast<float>(y)),
+                  1.f,
+                  0.8f,
+                  0.9f
+                )
               )
-            );
+              ->SetTexture("./assets/basketball.png");
           }
         }
         break;
@@ -236,7 +240,29 @@ void Application::Render() {
       continue;
     }
 
-    body->shape->DebugRender(body->position, body->rotation, 0xFFFFFFFF);
+    if (body->texture != nullptr) {
+      int width{0};
+      int height{0};
+
+      if (body->shape->GetType() == ShapeType::CIRCLE) {
+        width = body->shape->as<CircleShape>()->radius * 2;
+        height = body->shape->as<CircleShape>()->radius * 2;
+      } else if (body->shape->GetType() == ShapeType::BOX) {
+        width = body->shape->as<BoxShape>()->width;
+        height = body->shape->as<BoxShape>()->height;
+      }
+
+      Graphics::DrawTexture(
+        body->position.x,
+        body->position.y,
+        width,
+        height,
+        body->rotation,
+        body->texture
+      );
+    } else {
+      body->shape->DebugRender(body->position, body->rotation, 0xFFFFFFFF);
+    }
   }
 
   for (auto& contact: contacts) {

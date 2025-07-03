@@ -1,7 +1,6 @@
 #include "Shape.h"
 #include <algorithm>
 #include <cmath>
-#include <limits>
 #include <numeric>
 #include "../Graphics.h"
 #include "Vec2.h"
@@ -87,6 +86,11 @@ Vec2 PolygonShape::support_point(Vec2 direction) const {
       return a.Dot(direction) < b.Dot(direction);
     }
   );
+}
+
+float PolygonShape::GetMomentOfInertia(float mass) const {
+  // TODO: Get actual moment of inertia calculations here
+  return 5000.f;
 }
 
 BoxShape::BoxShape(float width, float height):

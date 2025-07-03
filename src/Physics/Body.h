@@ -2,6 +2,7 @@
 #define PARTICLE_H
 
 #include <memory>
+#include "SDL_image.h"
 #include "Shape.h"
 #include "Vec2.h"
 
@@ -25,6 +26,7 @@ public:
   float net_torque{0.f};
 
   std::unique_ptr<Shape> shape{nullptr};
+  SDL_Texture* texture{nullptr};
 
   float mass{1.f};
   float inv_mass{1.f};
@@ -88,6 +90,8 @@ public:
   [[nodiscard]] bool IsStatic() const;
 
   [[nodiscard]] Vec2 velocity_at(Vec2 location) const;
+
+  void SetTexture(const std::string& filepath);
 };
 
 #endif

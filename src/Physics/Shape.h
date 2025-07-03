@@ -63,7 +63,7 @@ struct CircleShape : public Shape {
 };
 
 struct PolygonShape : public Shape {
-  std::vector<Vec2> local_vertices;
+  std::vector<Vec2> local_vertices{};
   std::vector<Vec2> world_vertices{};
 
   explicit PolygonShape(const std::vector<Vec2>& vertices);
@@ -86,6 +86,8 @@ struct PolygonShape : public Shape {
   [[nodiscard]] bool IsPoly() const override;
 
   [[nodiscard]] Vec2 support_point(Vec2 direction) const;
+
+  [[nodiscard]] float GetMomentOfInertia(float mass) const override;
 };
 
 struct BoxShape : public PolygonShape {

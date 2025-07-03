@@ -1,6 +1,12 @@
+#include "../Graphics.h"
 #include "Constants.h"
+#include "SDL_image.h"
+#include "Shape.h"
 #include "Vec2.h"
 #include "Body.h"
+#include <iostream>
+#include <memory>
+#include <ostream>
 
 Body::Body(
   std::unique_ptr<Shape> shape,
@@ -21,7 +27,7 @@ Body::Body(
 void Body::Update(float dt) {
   if (shape->GetType() == ShapeType::BOX
       || shape->GetType() == ShapeType::POLYGON) {
-    shape->as<BoxShape>()->UpdateVertices(position, rotation);
+    shape->as<PolygonShape>()->UpdateVertices(position, rotation);
   }
 
   // NOTE: Consider how this could be used to lock only certain axes
@@ -83,4 +89,14 @@ Vec2 Body::velocity_at(Vec2 location) const {
   // NOTE: This is going to do the cross product of the vector in 2D for the
   // angular components
   return velocity + (Vec2(-to_location.y, to_location.x) * angular_velocity);
+}
+
+void Body::SetTexture(const std::string& filepath) {
+  SDL_Surface* surface{IMG_Load(filepath.c_str())};
+
+  if (surface != nullptr) {
+    texture = SDL_CreateTextureFromSurface(Graphics::renderer, surface);
+  } else {
+    std::cout << "Failed to load texture at " << filepath << std::endl;
+  }
 }
