@@ -1,8 +1,8 @@
 #include "Force.h"
 #include "Constants.h"
 
-Vec2 force::GenerateWeight(const Body& body) {
-  return (GRAVITY * PIXELS_PER_METER) * body.mass;
+Vec2 force::GenerateWeight(const Body& body, Vec2 gravity) {
+  return (gravity * PIXELS_PER_METER) * body.mass;
 }
 
 Vec2 force::GenerateFrictionSimple(const Body& body, float k) {

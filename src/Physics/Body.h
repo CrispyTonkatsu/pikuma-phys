@@ -2,7 +2,7 @@
 #define PARTICLE_H
 
 #include <memory>
-#include "SDL_image.h"
+#include "SDL_render.h"
 #include "Shape.h"
 #include "Vec2.h"
 
@@ -44,7 +44,7 @@ public:
     float restitution = 0.f,
     float friction = 1.f
   );
-  ~Body() = default;
+  ~Body();
 
   Body(const Body&) = delete;
   Body(Body&&) = default;

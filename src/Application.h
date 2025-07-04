@@ -1,24 +1,17 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <memory>
-#include <vector>
-#include "Physics/Body.h"
-#include "Physics/Contact.h"
-#include "SDL_rect.h"
+#include "Physics/Constants.h"
+#include "Physics/World.h"
 
 class Application {
 private:
 
-  std::vector<Contact> contacts{};
-
-  std::vector<std::unique_ptr<Body>> bodies{};
+  World world{GRAVITY};
 
   int time_prev_frame{0};
 
   bool running = false;
-
-  SDL_Rect liquid{};
 
 public:
 

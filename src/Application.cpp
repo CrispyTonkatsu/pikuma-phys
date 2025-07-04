@@ -2,10 +2,8 @@
 #include <algorithm>
 #include <memory>
 #include "Graphics.h"
-#include "Physics/Collision.h"
 #include "Physics/Constants.h"
 #include "Physics/Body.h"
-#include "Physics/Force.h"
 #include "Physics/Shape.h"
 #include "Physics/Vec2.h"
 #include "SDL_events.h"
@@ -38,7 +36,7 @@ bool Application::IsRunning() const { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  bodies.emplace_back(
+  world.AddBody(
     std::make_unique<Body>(
       std::make_unique<BoxShape>(Graphics::Width(), 100.f),
       Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
@@ -46,7 +44,7 @@ void Application::Setup() {
     )
   );
 
-  bodies.emplace_back(
+  world.AddBody(
     std::make_unique<Body>(
       std::make_unique<BoxShape>(
         Graphics::Width() * 0.1f,
@@ -57,7 +55,7 @@ void Application::Setup() {
     )
   );
 
-  bodies.emplace_back(
+  world.AddBody(
     std::make_unique<Body>(
       std::make_unique<BoxShape>(
         Graphics::Width() * 0.1f,
@@ -71,8 +69,8 @@ void Application::Setup() {
     )
   );
 
-  bodies
-    .emplace_back(
+  world
+    .AddBody(
       std::make_unique<Body>(
         std::make_unique<BoxShape>(200.f, 100.f),
         Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
@@ -80,13 +78,7 @@ void Application::Setup() {
         0.2f
       )
     )
-    ->rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
-
-  liquid.x = 0;
-  liquid.y = 0;
-
-  liquid.w = Graphics::Width();
-  liquid.h = Graphics::Height() * 0.1f; // NOLINT
+    .rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,23 +98,6 @@ void Application::Input() {
           if (event.key.keysym.sym == SDLK_ESCAPE) {
             running = false;
           }
-
-          auto& body = *bodies.front();
-
-          const float strength = 10000.f;
-
-          if (event.key.keysym.sym == SDLK_UP) {
-            body.AddForce({0.f, -strength});
-          }
-          if (event.key.keysym.sym == SDLK_DOWN) {
-            body.AddForce({0.f, strength});
-          }
-          if (event.key.keysym.sym == SDLK_LEFT) {
-            body.AddForce({-strength, 0.f});
-          }
-          if (event.key.keysym.sym == SDLK_RIGHT) {
-            body.AddForce({strength, 0.f});
-          }
         }
         break;
       case SDL_MOUSEBUTTONDOWN:
@@ -134,8 +109,8 @@ void Application::Input() {
           SDL_GetMouseState(&x, &y);
 
           if (left) {
-            bodies
-              .emplace_back(
+            world
+              .AddBody(
                 std::make_unique<Body>(
                   std::make_unique<BoxShape>(50.f, 50.f),
                   Vec2(static_cast<float>(x), static_cast<float>(y)),
@@ -144,12 +119,12 @@ void Application::Input() {
                   0.9f
                 )
               )
-              ->SetTexture("./assets/crate.png");
+              .SetTexture("./assets/crate.png");
           }
 
           if (right) {
-            bodies
-              .emplace_back(
+            world
+              .AddBody(
                 std::make_unique<Body>(
                   std::make_unique<CircleShape>(25.f),
                   Vec2(static_cast<float>(x), static_cast<float>(y)),
@@ -158,7 +133,7 @@ void Application::Input() {
                   0.9f
                 )
               )
-              ->SetTexture("./assets/basketball.png");
+              .SetTexture("./assets/basketball.png");
           }
         }
         break;
@@ -166,7 +141,7 @@ void Application::Input() {
         {
           int x = 0, y = 0;
           SDL_GetMouseState(&x, &y);
-          // bodies[0]->position = Vec2(x, y);
+          // bodies.back()->position = Vec2(x, y);
         }
         break;
     }
@@ -195,34 +170,8 @@ void Application::Update() {
 
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
-  contacts.clear();
-
-  for (auto& body: bodies) {
-    body->AddForce(force::GenerateWeight(*body));
-  }
-
-  for (auto& body: bodies) {
-    body->Update(delta_time);
-    body->isColliding = false;
-  }
-
-  for (size_t i = 0; i < bodies.size() - 1; i++) {
-    for (size_t j = i + 1; j < bodies.size(); j++) {
-
-      auto contact_opt =
-        collision_detection::IsColliding(*bodies[i], *bodies[j]);
-
-      if (contact_opt.has_value()) {
-        bodies[i]->isColliding = true;
-        bodies[j]->isColliding = true;
-        contacts.push_back(contact_opt.value());
-      }
-    }
-  }
-
-  for (auto& contact: contacts) {
-    contact.ResolveCollision();
-  }
+  world.Update(delta_time);
+  world.ResolveCollisions();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -231,7 +180,7 @@ void Application::Update() {
 void Application::Render() {
   Graphics::ClearScreen(0xFF056263);
 
-  DrawSDLRect(liquid, 0xFF6E3713);
+  auto& bodies = world.GetBodies();
 
   // This is just for nicer reading rendering, the course does not do this
   // because the rendering should be done by the user of the physics library
@@ -264,6 +213,8 @@ void Application::Render() {
       body->shape->DebugRender(body->position, body->rotation, 0xFFFFFFFF);
     }
   }
+
+  auto contacts = world.GetContacts();
 
   for (auto& contact: contacts) {
     // NOLINTBEGIN

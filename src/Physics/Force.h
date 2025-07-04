@@ -2,10 +2,11 @@
 #define FORCE_H
 
 #include "Body.h"
+#include "Constants.h"
 #include "Vec2.h"
 
 namespace force {
-  Vec2 GenerateWeight(const Body& body);
+  Vec2 GenerateWeight(const Body& body, Vec2 gravity = GRAVITY);
 
   Vec2 GenerateFrictionSimple(const Body& body, float k);
 

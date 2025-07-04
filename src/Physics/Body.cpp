@@ -1,6 +1,7 @@
 #include "../Graphics.h"
 #include "Constants.h"
 #include "SDL_image.h"
+#include "SDL_render.h"
 #include "Shape.h"
 #include "Vec2.h"
 #include "Body.h"
@@ -23,6 +24,8 @@ Body::Body(
     inv_inertia((inertia != 0.f) ? (1.f / inertia) : 0.f),
     restitution(restitution),
     friction(friction) {}
+
+Body::~Body() { SDL_DestroyTexture(texture); }
 
 void Body::Update(float dt) {
   if (shape->GetType() == ShapeType::BOX
