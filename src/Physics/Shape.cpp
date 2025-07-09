@@ -113,3 +113,5 @@ ShapeType BoxShape::GetType() const { return ShapeType::BOX; }
 float BoxShape::GetMomentOfInertia(float mass) const {
   return (1.f / 12.f) * (width * width + height * height) * mass;
 }
+
+void CircleShape::UpdateVertices(Vec2 position, float rotation) {}

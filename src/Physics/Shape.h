@@ -38,6 +38,8 @@ struct Shape {
   ) const = 0;
 
   [[nodiscard]] virtual bool IsPoly() const;
+
+  virtual void UpdateVertices(Vec2 position, float rotation) = 0;
 };
 
 struct CircleShape : public Shape {
@@ -60,6 +62,8 @@ struct CircleShape : public Shape {
   [[nodiscard]] Vec2 support_point(Vec2 position, Vec2 direction) const {
     return position + (direction * radius);
   }
+
+  void UpdateVertices(Vec2 position, float rotation) override;
 };
 
 struct PolygonShape : public Shape {

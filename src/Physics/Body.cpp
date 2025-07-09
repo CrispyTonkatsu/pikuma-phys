@@ -28,10 +28,7 @@ Body::Body(
 Body::~Body() { SDL_DestroyTexture(texture); }
 
 void Body::Update(float dt) {
-  if (shape->GetType() == ShapeType::BOX
-      || shape->GetType() == ShapeType::POLYGON) {
-    shape->as<PolygonShape>()->UpdateVertices(position, rotation);
-  }
+  shape->UpdateVertices(position, rotation);
 
   // NOTE: Consider how this could be used to lock only certain axes
   if (IsStatic()) {

@@ -1,6 +1,5 @@
 #include "Collision.h"
 #include <cctype>
-#include <complex>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
@@ -197,10 +196,6 @@ std::optional<collision_detection::DistanceQuery> collision_detection::
 
     const bool side = (support - projection_p).Dot(normal) >= 0.f;
 
-    // BUG: This is not accounting for the distance to the line, instead it is
-    // to the plane which means that we get distances that are not valid
-    // This was fixed for the circles because there is only one set of axes to
-    // check
     const float distance =
       (support - projection_p).Magnitude() * (side ? 1.f : -1.f);
 

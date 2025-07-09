@@ -1,5 +1,6 @@
 #include "Contact.h"
 #include <algorithm>
+#include "Shape.h"
 #include "Vec2.h"
 
 Contact::Contact(
@@ -23,6 +24,9 @@ void Contact::ResolvePenetration() const {
 
   a->position -= normal * equation(a->inv_mass);
   b->position += normal * equation(b->inv_mass);
+
+  a->shape->UpdateVertices(a->position, a->rotation);
+  b->shape->UpdateVertices(b->position, b->rotation);
 }
 
 void Contact::ResolveCollision() const {
