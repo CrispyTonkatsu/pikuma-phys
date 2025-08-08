@@ -36,6 +36,11 @@ add_executable(engine
 ./src/Physics/Collision.cpp
 ./src/Physics/Contact.cpp
 ./src/Physics/World.cpp
+./src/Physics/Constraint.cpp
+)
+
+add_executable(quick_test
+./src/QuickTest.cpp
 )
 
 target_link_libraries(engine OpenGL SDL2 SDL2_image SDL2_gfx)

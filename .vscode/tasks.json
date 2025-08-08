@@ -15,9 +15,9 @@
 			]
 		},
 		{
-			"label": "Run Sample (Debug)",
+			"label": "QuickTest",
 			"type": "shell",
-			"command": "./build/debug/sample",
+			"command": "./build/debug/quick_test",
 			"dependsOn": [
 				"Build (Debug)"
 			]

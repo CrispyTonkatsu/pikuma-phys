@@ -81,7 +81,7 @@ struct PolygonShape : public Shape {
 
   [[nodiscard]] ShapeType GetType() const override;
 
-  void UpdateVertices(Vec2 position, float rotation);
+  void UpdateVertices(Vec2 position, float rotation) override;
 
   void DebugRender(Vec2 position, float rotation, Uint32 color) const override;
 

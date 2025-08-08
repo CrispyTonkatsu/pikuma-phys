@@ -88,7 +88,7 @@ Vec2 PolygonShape::support_point(Vec2 direction) const {
   );
 }
 
-float PolygonShape::GetMomentOfInertia(float mass) const {
+float PolygonShape::GetMomentOfInertia(float) const {
   // TODO: Get actual moment of inertia calculations here
   return 5000.f;
 }
@@ -114,4 +114,4 @@ float BoxShape::GetMomentOfInertia(float mass) const {
   return (1.f / 12.f) * (width * width + height * height) * mass;
 }
 
-void CircleShape::UpdateVertices(Vec2 position, float rotation) {}
+void CircleShape::UpdateVertices(Vec2, float) {}
