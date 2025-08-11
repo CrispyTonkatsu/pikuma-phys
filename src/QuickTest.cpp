@@ -84,7 +84,7 @@ int main() {
     auto c = a * b;
 
     // Checking the output matrix has the right dimensions
-    static_assert(std::is_same_v<decltype(c), matN<float, 1, 3>>);
+    static_assert(std::is_same_v<decltype(c), vec3>);
 
     // Checking calculation
     std::cout << c << std::endl;
@@ -101,6 +101,23 @@ int main() {
     static_assert(std::is_same_v<decltype(c), matN<float, 3, 3>>);
 
     // Checking calculation
+    std::cout << c << std::endl;
+  }
+
+  {
+    std::cout << "Cross & dot product" << std::endl;
+
+    vec3 a{vec3::WithData({{{1, 0, 0}}})};
+    vec3 b{vec3::WithData({{{0, 1, 0}}})};
+
+    auto dot = a.dot(b);
+    auto c = b.cross(a);
+
+    // Checking the output matrix has the right dimensions
+    static_assert(std::is_same_v<decltype(c), vec3>);
+
+    // Checking calculation
+    std::cout << "Dot " << dot << std::endl;
     std::cout << c << std::endl;
   }
 
