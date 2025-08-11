@@ -25,13 +25,39 @@ std::ostream& operator<<(std::ostream& os, matN<T, W, H> mat) {
 
 template<typename T, size_t W, size_t H>
 class matN {
-  // TODO: Convert this from a 2d array to a 1d array for locality benefits (if
-  // there are any given std::array doesn't)
   std::array<std::array<T, H>, W> values{};
+
+  explicit matN(const std::array<std::array<T, H>, W>& values):
+      values(values) {}
 
 public:
 
   matN(): values() {}
+
+  matN(const matN& other) = default;
+  matN& operator=(const matN& other) = default;
+  matN(matN&&) = default;
+  matN& operator=(matN&&) = default;
+  ~matN() = default;
+
+  [[nodiscard]] static auto WithData(
+    const std::array<std::array<T, H>, W>& values
+  ) -> matN {
+    return matN{values};
+  }
+
+  [[nodiscard]] static auto FromArray(const std::array<T, W * H>& values)
+    -> matN {
+    matN output;
+
+    for (size_t x = 0; x < W; x++) {
+      for (size_t y = 0; y < H; y++) {
+        output.at_mut(x, y) = values[x + (y * W)];
+      }
+    }
+
+    return output;
+  }
 
   [[nodiscard]] static auto Filled(const T& value) -> matN {
     matN output{};
@@ -56,15 +82,6 @@ public:
 
     return output;
   }
-
-  explicit matN(const std::array<std::array<T, H>, W>& values):
-      values(values) {}
-
-  matN(const matN& other) = default;
-  matN& operator=(const matN& other) = default;
-  matN(matN&&) = default;
-  matN& operator=(matN&&) = default;
-  ~matN() = default;
 
   [[nodiscard]] auto at(size_t x, size_t y) const -> const T& {
     return values[x][y];
@@ -158,11 +175,18 @@ public:
     return output;
   }
 
-  [[nodiscard]] auto is_square() const -> bool { return W == H; }
+  [[nodiscard]] consteval auto is_square() const -> bool { return W == H; }
 };
 
-// TODO: Make this nice to use
 template<typename T, size_t N>
 using vecN = matN<T, 1, N>;
+
+using vec2 = vecN<float, 2>;
+using vec3 = vecN<float, 3>;
+using vec4 = vecN<float, 4>;
+
+using mat2 = matN<float, 2, 2>;
+using mat3 = matN<float, 3, 3>;
+using mat4 = matN<float, 4, 4>;
 
 #endif
