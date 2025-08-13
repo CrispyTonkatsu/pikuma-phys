@@ -1,24 +1,26 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-#include <functional>
 #include <memory>
 #include <vector>
 #include "Body.h"
+#include "Constraint.h"
 #include "Contact.h"
 #include "Vec2.h"
 
 class World {
-private:
+public:
 
   Vec2 gravity{0.f, 9.81f};
 
   std::vector<std::unique_ptr<Body>> bodies{};
+
   std::vector<Vec2> forces{};
   std::vector<float> torques{};
+
   std::vector<Contact> contacts{};
 
-public:
+  std::vector<std::unique_ptr<Constraint>> constraints{};
 
   explicit World(Vec2 gravity);
 
@@ -40,6 +42,7 @@ public:
 
   void Update(float dt);
   void ResolveCollisions();
+  void SolveConstraints();
 };
 
 #endif

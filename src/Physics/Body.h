@@ -67,6 +67,9 @@ public:
    */
   void IntegrateAngluar(float dt);
 
+  void IntegrateForces(float dt);
+  void IntegrateVelocities(float dt);
+
   /**
    * @brief Adds to the net force of a particle
    * @param force The force to add to the particle
@@ -92,6 +95,10 @@ public:
   [[nodiscard]] Vec2 velocity_at(Vec2 location) const;
 
   void SetTexture(const std::string& filepath);
+
+  [[nodiscard]] Vec2 ToLocal(Vec2 point) const;
+
+  [[nodiscard]] Vec2 ToWorld(Vec2 point) const;
 };
 
 #endif

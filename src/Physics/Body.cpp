@@ -100,3 +100,20 @@ void Body::SetTexture(const std::string& filepath) {
     std::cout << "Failed to load texture at " << filepath << std::endl;
   }
 }
+
+Vec2 Body::ToLocal(Vec2 point) const {
+  return (point - position).Rotate(-rotation);
+}
+
+Vec2 Body::ToWorld(Vec2 point) const {
+  return point.Rotate(rotation) + position;
+}
+
+// TODO: left off here, implementing these functions to match the things that we
+// need to do
+void Body::IntegrateForces(float dt) {
+  acceleration = net_force * inv_mass * dt;
+  angular_acceleration = net_torque * inv_inertia * dt;
+}
+
+void Body::IntegrateVelocities(float dt) {}

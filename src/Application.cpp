@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "Physics/Constants.h"
 #include "Physics/Body.h"
+#include "Physics/Constraint.h"
 #include "Physics/Shape.h"
 #include "Physics/Vec2.h"
 #include "SDL_events.h"
@@ -36,49 +37,31 @@ bool Application::IsRunning() const { return running; }
 void Application::Setup() {
   running = Graphics::OpenWindow();
 
-  world.AddBody(
+  Vec2 screen_center(Graphics::Width() * 0.5f, Graphics::Height() * 0.5f);
+
+  Body& center = world.AddBody(
     std::make_unique<Body>(
-      std::make_unique<BoxShape>(Graphics::Width(), 100.f),
-      Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.9f),
+      std::make_unique<CircleShape>(100.f),
+      screen_center,
       0.f
     )
   );
 
   world.AddBody(
     std::make_unique<Body>(
-      std::make_unique<BoxShape>(
-        Graphics::Width() * 0.1f,
-        Graphics::Height() * 0.7f
-      ),
-      Vec2(Graphics::Width<float>() * 0.01f, Graphics::Height<float>() * 0.5f),
+      std::make_unique<CircleShape>(50.f),
+      screen_center - Vec2{200.f, 200.f},
       0.f
     )
   );
 
-  world.AddBody(
-    std::make_unique<Body>(
-      std::make_unique<BoxShape>(
-        Graphics::Width() * 0.1f,
-        Graphics::Height() * 0.7f
-      ),
-      Vec2(
-        Graphics::Width<float>() * (1 - 0.01f),
-        Graphics::Height<float>() * 0.5f
-      ),
-      0.f
+  world.constraints.push_back(
+    std::make_unique<JointConstraint>(
+      world.bodies[0].get(),
+      world.bodies[1].get(),
+      screen_center
     )
   );
-
-  world
-    .AddBody(
-      std::make_unique<Body>(
-        std::make_unique<BoxShape>(200.f, 100.f),
-        Vec2(Graphics::Width<float>() * 0.5f, Graphics::Height<float>() * 0.5f),
-        0.f,
-        0.2f
-      )
-    )
-    .rotation = 15.f * (std::numbers::pi_v<float> / 180.f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,7 +154,7 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   world.Update(delta_time);
-  world.ResolveCollisions();
+  world.SolveConstraints();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

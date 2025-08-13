@@ -54,12 +54,12 @@ std::ostream& operator<<(std::ostream& os, matN<T, W, H> mat) {
 
 template<typename T, size_t W, size_t H>
 class matN {
+public:
+
   std::array<std::array<T, H>, W> values{};
 
   explicit matN(const std::array<std::array<T, H>, W>& values):
       values(values) {}
-
-public:
 
   matN(): values() {}
 
@@ -88,6 +88,9 @@ public:
     return output;
   }
 
+  // TODO: add functions that will do compile time filling so no time is
+  // lost during the solving later (this is for the improved library)
+
   [[nodiscard]] static auto Filled(const T& value) -> matN {
     matN output{};
 
@@ -112,10 +115,13 @@ public:
     return output;
   }
 
-  // TODO: Implement these matrices for easier transformations
-  [[nodiscard]] static auto Scale(const T& value) -> matN {}
-  [[nodiscard]] static auto Rotate(const T& value) -> matN {}
-  [[nodiscard]] static auto Translate(const T& value) -> matN {}
+  // TODO: Implement these matrices for easier transformations (consider making
+  // these compile time generators)
+  [[nodiscard]] static auto Scale(const T&) -> matN {}
+
+  [[nodiscard]] static auto Rotate(const T&) -> matN {}
+
+  [[nodiscard]] static auto Translate(const T&) -> matN {}
 
   [[nodiscard]] auto at(size_t x, size_t y) const -> const T& {
     return values[x][y];

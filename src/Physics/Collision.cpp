@@ -168,6 +168,7 @@ std::optional<Contact> collision_detection::PolygonCircleCollision(
   );
 }
 
+// TODO: Make sure that the distance output is not using a projected point outside the line
 std::optional<collision_detection::DistanceQuery> collision_detection::
   FindSeparation(PolygonShape& a, PolygonShape& b) {
 

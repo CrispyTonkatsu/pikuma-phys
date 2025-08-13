@@ -18,7 +18,6 @@ void World::AddForce(Vec2 force) { forces.push_back(force); }
 void World::AddTorque(float torque) { torques.push_back(torque); }
 
 void World::Update(float dt) {
-
   contacts.clear();
 
   for (auto& body: bodies) {
@@ -48,5 +47,11 @@ void World::ResolveCollisions() {
 
   for (auto& contact: contacts) {
     contact.ResolveCollision();
+  }
+}
+
+void World::SolveConstraints() {
+  for (auto& constraint: constraints) {
+    constraint->Solve();
   }
 }

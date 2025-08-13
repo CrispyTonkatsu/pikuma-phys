@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <ostream>
+#include "matN.h"
 
 struct Vec2 {
   float x;
@@ -15,6 +16,10 @@ struct Vec2 {
   Vec2(Vec2&&) = default;
 
   ~Vec2() = default;
+
+  explicit operator vec2() const{
+    return vec2({{{x,y}}});
+  }
 
   void Add(const Vec2& v);                        // v1.Add(v2)
   void Sub(const Vec2& v);                        // v1.Sub(v2)
