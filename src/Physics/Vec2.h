@@ -3,7 +3,14 @@
 
 #include <iostream>
 #include <ostream>
-#include "matN.h"
+
+template<typename T, size_t W, size_t H>
+class matN;
+
+template<typename T, size_t N>
+using vecN = matN<T, 1, N>;
+
+using vec2 = vecN<float, 2>;
 
 struct Vec2 {
   float x;
@@ -17,9 +24,7 @@ struct Vec2 {
 
   ~Vec2() = default;
 
-  explicit operator vec2() const{
-    return vec2({{{x,y}}});
-  }
+  operator vec2() const;
 
   void Add(const Vec2& v);                        // v1.Add(v2)
   void Sub(const Vec2& v);                        // v1.Sub(v2)

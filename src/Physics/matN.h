@@ -4,7 +4,12 @@
 #include <array>
 #include <cstddef>
 #include <iostream>
+#include <type_traits>
 #include <utility>
+#include "Vec2.h"
+
+template<typename T>
+using NEGATE_RETURN = decltype(-std::declval<T>());
 
 template<typename T, typename Y>
 using ADD_RETURN = decltype(std::declval<T>() + std::declval<Y>());
@@ -41,7 +46,7 @@ using mat3 = matN<float, 3, 3>;
 using mat4 = matN<float, 4, 4>;
 
 template<typename T, size_t W, size_t H>
-std::ostream& operator<<(std::ostream& os, matN<T, W, H> mat) {
+std::ostream& operator<<(std::ostream& os, matN<T, W, H>& mat) {
   for (size_t y = 0; y < H; y++) {
     for (size_t x = 0; x < W - 1; x++) {
       os << mat.at_mut(x, y) << " ";
@@ -50,6 +55,20 @@ std::ostream& operator<<(std::ostream& os, matN<T, W, H> mat) {
   }
 
   return os;
+}
+
+template<typename Y, typename T, size_t W, size_t H>
+matN<MULT_RETURN<T, Y>, W, H> operator*(Y scale, matN<T, W, H> mat) {
+  using R = decltype(std::declval<T>() * std::declval<Y>());
+  matN<R, W, H> output{};
+
+  for (size_t x = 0; x < W; x++) {
+    for (size_t y = 0; y < H; y++) {
+      output.at_mut(x, y) = scale * mat.at(x, y);
+    }
+  }
+
+  return output;
 }
 
 template<typename T, size_t W, size_t H>
@@ -68,6 +87,15 @@ public:
   matN(matN&&) = default;
   matN& operator=(matN&&) = default;
   ~matN() = default;
+
+  operator Vec2() const {
+    static_assert(
+      std::is_same_v<float, T> && (W == 1 && H == 2),
+      "This conversion only works for vec2"
+    );
+
+    return Vec2{at(0, 0), at(0, 1)};
+  }
 
   [[nodiscard]] static auto WithData(
     const std::array<std::array<T, H>, W>& values
@@ -145,8 +173,8 @@ public:
     return output;
   }
 
-  [[nodiscard]] auto operator-() const -> matN {
-    matN<T, W, H> output{};
+  [[nodiscard]] auto operator-() const -> matN<NEGATE_RETURN<T>, W, H> {
+    matN<NEGATE_RETURN<T>, W, H> output{};
 
     for (size_t x = 0; x < W; x++) {
       for (size_t y = 0; y < H; y++) {
@@ -192,8 +220,7 @@ public:
   }
 
   template<typename Y>
-  [[nodiscard]] auto operator*(Y scale) const
-    -> matN<decltype(std::declval<T>() * std::declval<Y>()), W, H> {
+  [[nodiscard]] auto operator*(Y scale) const -> matN<MULT_RETURN<T, Y>, W, H> {
 
     using R = decltype(std::declval<T>() * std::declval<Y>());
     matN<R, W, H> output{};
@@ -232,7 +259,7 @@ public:
   }
 
   [[nodiscard]] auto cross(matN other) const -> vecN<CROSS_ELEM<T>, H> {
-    static_assert(W == 1, "Cross product only works on vectors");
+    static_assert(W == 1 && H == 3, "Cross product only works on 3x3 vectors");
 
     vecN<CROSS_ELEM<T>, H> output{};
 

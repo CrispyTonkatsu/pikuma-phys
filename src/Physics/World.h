@@ -42,7 +42,6 @@ public:
 
   void Update(float dt);
   void ResolveCollisions();
-  void SolveConstraints();
 };
 
 #endif

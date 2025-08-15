@@ -38,6 +38,8 @@ void World::Update(float dt) {
   for (auto& body: bodies) {
     body->IntegrateVelocities(dt);
   }
+
+  ResolveCollisions();
 }
 
 void World::ResolveCollisions() {
@@ -57,11 +59,5 @@ void World::ResolveCollisions() {
 
   for (auto& contact: contacts) {
     contact.ResolveCollision();
-  }
-}
-
-void World::SolveConstraints() {
-  for (auto& constraint: constraints) {
-    constraint->Solve();
   }
 }

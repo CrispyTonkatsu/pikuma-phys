@@ -1,9 +1,10 @@
 #include "Constraint.h"
 #include "matN.h"
+#include "Vec2.h"
 
 Constraint::Constraint(Body* a, Body* b): a(a), b(b) {}
 
-matN<float, 6, 6> Constraint::get_inverse_mass() const {
+matN<float, 6, 6> Constraint::get_inverse_mass_matrix() const {
   matN<float, 6, 6> output{matN<float, 6, 6>::Filled(0.f)};
 
   output.at_mut(0, 0) = a->inv_mass;
@@ -32,14 +33,47 @@ vecN<float, 6> Constraint::get_velocities() const {
 }
 
 JointConstraint::JointConstraint(Body* a, Body* b, Vec2 anchor):
-    Constraint(a, b), aPoint(a->ToLocal(anchor)), bPoint(b->ToLocal(anchor)) {}
+    Constraint(a, b),
+    a_point(a->ToLocal(anchor)),
+    b_point(b->ToLocal(anchor)) {}
+
+matN<float, 6, 1> JointConstraint::generate_jacobian() const {
+  auto cross = [](vec2 a, vec2 b) {
+    return (a.at(0, 0) * b.at(0, 1)) - (a.at(0, 1) * b.at(0, 0));
+  };
+
+  vec2 aw_point = a->ToWorld(a_point);
+  vec2 bw_point = b->ToWorld(b_point);
+
+  vec2 ra = aw_point - vec2(a->position);
+  vec2 rb = bw_point - vec2(b->position);
+
+  vec2 b_to_a = aw_point - bw_point;
+
+  vec2 j0 = 2.f * b_to_a;
+  float j1 = 2.f * cross(ra, b_to_a);
+  vec2 j2 = 2.f * -b_to_a;
+  float j3 = 2.f * cross(rb, -b_to_a);
+
+  return matN<float, 6, 1>{
+    {
+     {
+        {j0.at(0, 0)},
+        {j0.at(1, 0)},
+        {j1},
+        {j2.at(1, 0)},
+        {j2.at(1, 0)},
+        {j3},
+      }, }
+  };
+}
 
 void JointConstraint::Solve() {
-  // TODO: Load the Jacobian
+  const matN<float, 6, 1> jacobian{generate_jacobian()};
 
-  // TODO: Get the velocities
+  const vecN<float, 6> velocities{get_velocities()};
 
-  // TODO: Get the inverse mass matrix
+  const matN<float, 6, 6> mass_matrix{get_inverse_mass_matrix()};
 
   // TODO: Compute the lambda value
 

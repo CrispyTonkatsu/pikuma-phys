@@ -39,7 +39,7 @@ void Application::Setup() {
 
   Vec2 screen_center(Graphics::Width() * 0.5f, Graphics::Height() * 0.5f);
 
-  Body& center = world.AddBody(
+  world.AddBody(
     std::make_unique<Body>(
       std::make_unique<CircleShape>(100.f),
       screen_center,
@@ -51,7 +51,7 @@ void Application::Setup() {
     std::make_unique<Body>(
       std::make_unique<CircleShape>(50.f),
       screen_center - Vec2{200.f, 200.f},
-      0.f
+      10.f
     )
   );
 
@@ -151,9 +151,9 @@ void Application::Update() {
   // Clamping the delta time so that debugging is or
   delta_time = std::clamp(delta_time, 0.f, MAX_DELTA_TIME);
 
-  time_prev_frame = static_cast<int>(SDL_GetTicks());
-
   world.Update(delta_time);
+
+  time_prev_frame = static_cast<int>(SDL_GetTicks());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

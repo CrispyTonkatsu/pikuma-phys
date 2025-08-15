@@ -83,15 +83,13 @@ Vec2 Body::ToWorld(Vec2 point) const {
   return point.Rotate(rotation) + position;
 }
 
-// TODO: left off here, implementing these functions to match the things that we
-// need to do
 void Body::IntegrateForces(float dt) {
   if (IsStatic()) {
     return;
   }
 
-  acceleration = net_force * inv_mass * dt;
-  angular_acceleration = net_torque * inv_inertia * dt;
+  acceleration = net_force * inv_mass;
+  angular_acceleration = net_torque * inv_inertia;
 
   velocity += acceleration * dt;
   angular_velocity += angular_acceleration * dt;

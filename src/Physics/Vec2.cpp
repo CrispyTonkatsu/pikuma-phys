@@ -1,5 +1,6 @@
 #include "Vec2.h"
 #include <cmath>
+#include "matN.h"
 
 Vec2::Vec2(): x(0.0), y(0.0) {}
 
@@ -123,3 +124,5 @@ std::ostream& operator<<(std::ostream& stream, Vec2 vec) {
   stream << vec.x << ", " << vec.y;
   return stream;
 }
+
+Vec2::operator vec2() const { return vec2({{{x, y}}}); }

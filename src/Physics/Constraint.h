@@ -19,7 +19,7 @@ public:
   Constraint& operator=(const Constraint&) = default;
   Constraint& operator=(Constraint&&) = delete;
 
-  [[nodiscard]] matN<float, 6, 6> get_inverse_mass() const;
+  [[nodiscard]] matN<float, 6, 6> get_inverse_mass_matrix() const;
 
   [[nodiscard]] vecN<float, 6> get_velocities() const;
 
@@ -32,12 +32,12 @@ public:
   explicit JointConstraint(Body* a, Body* b, Vec2 anchor);
 
   // local space for the anchor point relative to body a
-  vec2 aPoint{{{{0.f, 0.f}}}};
+  vec2 a_point{{{{0.f, 0.f}}}};
 
   // local space for the anchor point relative to body b
-  vec2 bPoint{{{{0.f, 0.f}}}};
+  vec2 b_point{{{{0.f, 0.f}}}};
 
-  matN<float, 6, 1> Jacobian{};
+  [[nodiscard]] matN<float, 6, 1> generate_jacobian() const;
 
   void Solve() override;
 };
