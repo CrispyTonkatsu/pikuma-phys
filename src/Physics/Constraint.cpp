@@ -75,7 +75,16 @@ void JointConstraint::Solve() {
 
   const matN<float, 6, 6> mass_matrix{get_inverse_mass_matrix()};
 
-  // TODO: Compute the lambda value
+  // NOTE: This is a 1x1 matrix but the Gauss-Seidel method will solve for
+  // matrices of many sizes regardless (There are other ways to solve linear
+  // equations so check them depending on the problem)
+
+  // lhs * lambda = rhs
+  matN<float, 1, 1> rhs = (-(jacobian * velocities));
+  matN<float, 1, 1> lhs = (jacobian * mass_matrix * jacobian.transpose());
+
+  // Solving for lambda
+  vecN<float, 1> lambda = solver::solve_gauss_seidel(lhs, rhs);
 
   // TODO: Apply the lambda impulse to both bodies
 }

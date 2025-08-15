@@ -31,6 +31,10 @@ template<typename T>
 using CROSS_ELEM =
   decltype(std::declval<MULT_RETURN<T, T>>() - std::declval<MULT_RETURN<T, T>>());
 
+template<typename T>
+using GAUSS_ELEM =
+  decltype(std::declval<DIV_RETURN<T, T>>() - std::declval<DIV_RETURN<T, T>>());
+
 template<typename T, size_t W, size_t H>
 class matN;
 
@@ -80,7 +84,13 @@ public:
   explicit matN(const std::array<std::array<T, H>, W>& values):
       values(values) {}
 
-  matN(): values() {}
+  matN(): values() {
+    for (auto& column: values) {
+      for (auto& value: column) {
+        value = 0;
+      }
+    }
+  }
 
   matN(const matN& other) = default;
   matN& operator=(const matN& other) = default;
@@ -156,6 +166,27 @@ public:
   }
 
   [[nodiscard]] auto at_mut(size_t x, size_t y) -> T& { return values[x][y]; }
+
+  [[nodiscard]] auto operator[](size_t index) const
+    -> const matN<T, 1, H>& requires(W != 1)
+  {
+    return values[index];
+  }
+
+  [[nodiscard]] auto operator[](size_t index) -> matN<T, 1, H>& requires(W != 1)
+  {
+    return values[index];
+  }
+
+  [[nodiscard]] auto operator[](size_t index) const -> const T& requires(W == 1)
+  {
+    return values[0][index];
+  }
+
+  [[nodiscard]] auto operator[](size_t index) -> T& requires(W == 1)
+  {
+    return values[0][index];
+  }
 
   template<typename Y>
   [[nodiscard]] auto operator+(const matN<Y, W, H>& other) const
@@ -275,6 +306,40 @@ public:
   }
 
   [[nodiscard]] consteval auto is_square() const -> bool { return W == H; }
+
+  [[nodiscard]] auto release_value() const -> T {
+    static_assert(
+      W == 1 && H == 1,
+      "This is only possible for matrices that are 1x1"
+    );
+
+    return at(0, 0);
+  };
 };
+
+// TODO: Left off here, implementing the solving algorithm and testing it's correctness
+namespace solver {
+  template<typename T, size_t W, size_t H>
+  [[nodiscard]] auto solve_gauss_seidel(
+    const matN<T, W, H>& A,
+    const vecN<T, H>& b
+  ) -> vecN<GAUSS_ELEM<T>, H> {
+    const size_t iter_count = H;
+    vecN<GAUSS_ELEM<T>, H> output{};
+
+    for (size_t iteration = 0; iteration < iter_count; iteration++) {
+      for (size_t i = 0; i < iter_count; i++) {
+        if (A[i][i] == 0.f) {
+          continue;
+        }
+
+        output[i] += (b[i] / A[i][i]) - (A[i].dot(b) / A[i][i]);
+      }
+    }
+
+    return output;
+  }
+
+}
 
 #endif
