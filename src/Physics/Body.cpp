@@ -27,33 +27,7 @@ Body::Body(
 
 Body::~Body() { SDL_DestroyTexture(texture); }
 
-void Body::Update(float dt) {
-  shape->UpdateVertices(position, rotation);
-
-  // NOTE: Consider how this could be used to lock only certain axes
-  if (IsStatic()) {
-    return;
-  }
-
-  IntegrateLinear(dt);
-  IntegrateAngluar(dt);
-}
-
-void Body::IntegrateLinear(float dt) {
-  acceleration = net_force * inv_mass;
-  velocity += acceleration * dt;
-  position += velocity * dt;
-
-  ClearForces();
-}
-
-void Body::IntegrateAngluar(float dt) {
-  angular_acceleration = net_torque * inv_inertia;
-  angular_velocity += angular_acceleration * dt;
-  rotation += angular_velocity * dt;
-
-  ClearTorques();
-}
+void Body::Update(float) { shape->UpdateVertices(position, rotation); }
 
 void Body::AddForce(Vec2 force) { net_force += force; }
 
@@ -112,8 +86,28 @@ Vec2 Body::ToWorld(Vec2 point) const {
 // TODO: left off here, implementing these functions to match the things that we
 // need to do
 void Body::IntegrateForces(float dt) {
+  if (IsStatic()) {
+    return;
+  }
+
   acceleration = net_force * inv_mass * dt;
   angular_acceleration = net_torque * inv_inertia * dt;
+
+  velocity += acceleration * dt;
+  angular_velocity += angular_acceleration * dt;
+
+  ClearForces();
+  ClearTorques();
 }
 
-void Body::IntegrateVelocities(float dt) {}
+void Body::IntegrateVelocities(float dt) {
+  // NOTE: Consider how this could be used to lock only certain axes
+  if (IsStatic()) {
+    return;
+  }
+
+  position += velocity * dt;
+  rotation += angular_velocity * dt;
+
+  shape->UpdateVertices(position, rotation);
+}

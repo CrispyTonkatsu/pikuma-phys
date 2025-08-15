@@ -154,7 +154,6 @@ void Application::Update() {
   time_prev_frame = static_cast<int>(SDL_GetTicks());
 
   world.Update(delta_time);
-  world.SolveConstraints();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

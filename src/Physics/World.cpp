@@ -20,13 +20,23 @@ void World::AddTorque(float torque) { torques.push_back(torque); }
 void World::Update(float dt) {
   contacts.clear();
 
+  // Consider abstracting this into a function so that there can be global
+  // forces
   for (auto& body: bodies) {
     body->AddForce(force::GenerateWeight(*body));
   }
 
   for (auto& body: bodies) {
-    body->Update(dt);
-    body->isColliding = false;
+    body->IntegrateForces(dt);
+  }
+
+  // TODO: Solve constraints
+  for (auto& constraint: constraints) {
+    constraint->Solve();
+  }
+
+  for (auto& body: bodies) {
+    body->IntegrateVelocities(dt);
   }
 }
 

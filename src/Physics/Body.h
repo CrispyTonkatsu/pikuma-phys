@@ -53,20 +53,6 @@ public:
 
   void Update(float dt);
 
-  /**
-   * @brief Integrate the new position of the particle using Implicit Euler's
-   * Method
-   * @param dt Delta Time
-   */
-  void IntegrateLinear(float dt);
-
-  /**
-   * @brief Integrate the new position of the particle using Implicit Euler's
-   * Method
-   * @param dt Delta Time
-   */
-  void IntegrateAngluar(float dt);
-
   void IntegrateForces(float dt);
   void IntegrateVelocities(float dt);
 
